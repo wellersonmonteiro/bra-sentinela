@@ -1,13 +1,20 @@
 import React from 'react';
 import './Header.css';
+import logoImage from '../assets/logotipo.png';
 
 function Header() {
     return (
         <header className="header">
-            <h1>Minha Página Inicial</h1>
+            <a href="/" className="logo-link">
+                <img
+                    src={logoImage}
+                    alt="Logotipo - Central de Denúncias"
+                    className="header-logo"
+                />
+            </a>
             <nav>
-                <a href="#home" className="link">Home</a>
-                <a href="#form" className="link">Formulário</a>
+                <a href="#home" className="link">Início</a>
+                <a href="#form" className="link">Acompanhe sua denúncia</a>
             </nav>
         </header>
     );
