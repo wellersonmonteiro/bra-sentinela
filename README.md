@@ -34,7 +34,7 @@ npm start
 
 ##  URLs Importantes
 
-- API Gateway: http://localhost:8080
+- API Gateway: http://localhost:8090
 - RabbitMQ Management: http://localhost:15672
 - MinIO Console: http://localhost:9001
 - Grafana: http://localhost:3000
