@@ -24,7 +24,7 @@
     font-weight: bolder;
     color: #eeeeee;
     border-bottom: 2px solid #eee;
-    padding-bottom: 0.5rem;
+    padding-bottom: 1rem;
 }
 
 .realce-header {
@@ -32,7 +32,7 @@
 }
 
 .intro-section {
-    padding-top: 20px;
+    padding-top: 30px;
     padding-bottom: 10px;
 }
 
@@ -45,9 +45,8 @@
 .scenarios-list li {
     padding-left: 10px;
     margin-left: 10px;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 100;
-
 }
 
 .image-column {
@@ -60,8 +59,9 @@
     height: auto;
     border-radius: 8px;
 }
-
-
+.scenarios-list{
+    margin-bottom: 1.5rem;
+}
 .scenarios-list ul {
     list-style-type: disc;
     margin-left: 20px;
@@ -72,22 +72,22 @@
 }
 
 .alert-box {
-    padding: 10px 15px;
-    margin: 1.5rem 0;
-    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 1.3rem 0;
+    border-radius: 25px;
     border: 1px solid;
 }
 
 .alert-box.warning {
-    background-color: rgba(255, 251, 235, 0.85);
-    border-color: #fde68a;
-    color: #78350f;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-color: #A1A1A1;
+    color: #f4f4f4;
 }
 
 .alert-box.info {
-    background-color: #eff6ff;
-    border-color: #bfdbfe;
-    color: #1e40af;
+    background-color: rgba(255, 255, 255, 0.02);
+    border-color: #A1A1A1;
+    color: #f4f4f4;
 }
 
 .cta-section {

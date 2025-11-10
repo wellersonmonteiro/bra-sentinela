@@ -1,0 +1,8 @@
+o que ainda falta:
+
+- ajustar json
+- implementação para receber o get do backend
+- revisar códigos
+- revisar condicionais
+- testar recebimento de dados
+- conexão com o axios

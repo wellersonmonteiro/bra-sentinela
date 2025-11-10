@@ -1,3 +1,9 @@
+# Ignorar pasta de configuração da IDE
+.idea/
+
+# Ignorar arquivos de design
+*.ai
+
 # Logs
 logs
 *.log
