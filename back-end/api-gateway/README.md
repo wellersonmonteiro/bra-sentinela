@@ -17,5 +17,5 @@ API Gateway para roteamento
 ```
 
 ## Endpoints
-- Health: http://localhost:8080/actuator/health
-- Metrics: http://localhost:8080/actuator/metrics
+- Health: http://localhost:8090/actuator/health
+- Metrics: http://localhost:8090/actuator/metrics
