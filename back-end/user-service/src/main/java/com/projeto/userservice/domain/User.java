@@ -8,7 +8,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,13 +25,11 @@ public class User {
     private Integer userId;
 
     @NotBlank(message = "Nome completo é obrigatório")
-    @Size(max = 100)
-    @Column(name = "full_name", nullable = false, length = 100)
+    @Column(name = "full_name", nullable = false)
     private String fullName;
 
     @NotBlank(message = "Email é obrigatório")
     @Email
-    @Size(max = 255)
-    @Column(name = "email", nullable = false, unique = true, length = 255)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 }

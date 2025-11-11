@@ -10,13 +10,11 @@ public class UserserviceApplication {
 
     public static void main(String[] args) {
 
-        // Carrega o .env do módulo user-service
         Dotenv dotenv = Dotenv.configure()
-                              .directory("back-end/user-service") // caminho relativo à raiz do projeto
+                              .directory("back-end/user-service") // caminho para o .env
                               .ignoreIfMissing()
                               .load();
 
-        // Define as propriedades do Spring
         System.setProperty("spring.datasource.url", dotenv.get("DB_URL"));
         System.setProperty("spring.datasource.username", dotenv.get("DB_USERNAME"));
         System.setProperty("spring.datasource.password", dotenv.get("DB_PASSWORD"));
