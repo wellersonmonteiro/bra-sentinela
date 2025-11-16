@@ -1,7 +1,8 @@
 package com.projeto.apigateway.controller;
 
 
-import com.projeto.apigateway.controller.dto.ComplaintRequest;
+import com.projeto.apigateway.controller.dto.ComplaintCreateRequest;
+import com.projeto.apigateway.controller.dto.ComplaintCreateResponse;
 import com.projeto.apigateway.controller.dto.ComplaintResponse;
 import com.projeto.apigateway.service.ComplaintService;
 import lombok.AllArgsConstructor;
@@ -11,17 +12,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/complaint")
+@RequestMapping("v1/complaint")
 @Slf4j
 @AllArgsConstructor
 public class ComplaintController {
 
     private ComplaintService complaintService;
-    @PostMapping
-    public ResponseEntity<ComplaintResponse> createComplaint(@RequestBody ComplaintRequest complaintRequest){
 
+    @PostMapping
+    public ResponseEntity<ComplaintCreateResponse> createComplaint(@RequestBody ComplaintCreateRequest complaintRequest) {
 
         return ResponseEntity.status(HttpStatusCode.valueOf(201)).body(complaintService.createComplaint(complaintRequest));
-       
+
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<ComplaintResponse> getComplaint(@PathVariable String id) {
+        ComplaintResponse complaintResponse = complaintService.getComplaintById(id);
+        return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(complaintResponse);
+    }
+
 }

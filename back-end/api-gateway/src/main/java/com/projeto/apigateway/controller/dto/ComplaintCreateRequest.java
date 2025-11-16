@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class ComplaintRequest {
+public class ComplaintCreateRequest {
     private String description;
     private String date;
     private String time;

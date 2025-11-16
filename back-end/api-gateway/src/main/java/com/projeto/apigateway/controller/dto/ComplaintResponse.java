@@ -1,12 +1,11 @@
 package com.projeto.apigateway.controller.dto;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Builder
-public class ComplaintResponse {
-    private String protocol;
+public record ComplaintResponse(String statusComplaint,
+                                String createdDate,
+                                String descriptionComplaint,
+                                String protocolNumber,
+                                String message) {
 }
