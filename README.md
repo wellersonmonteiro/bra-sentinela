@@ -28,8 +28,7 @@ cd back-end/api-gateway
 ### 3. Executar Frontend
 ```bash
 cd complaintCenter-frontend
-npm install
-npm start
+
 ```
 
 ##  URLs Importantes
