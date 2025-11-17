@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 public class ComplaintController {
 
-    private ComplaintService complaintService;
+    private final ComplaintService complaintService;
 
     @PostMapping
     public ResponseEntity<ComplaintCreateResponse> createComplaint(@RequestBody ComplaintCreateRequest complaintRequest) {
