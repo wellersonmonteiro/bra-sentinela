@@ -1,0 +1,35 @@
+package com.projeto.complaintservice.controller;
+
+
+
+import com.projeto.complaintservice.controller.dto.ComplaintCreateRequest;
+import com.projeto.complaintservice.controller.dto.ComplaintCreateResponse;
+import com.projeto.complaintservice.controller.dto.ComplaintResponse;
+import com.projeto.complaintservice.service.ComplaintService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("v1/complaint")
+@Slf4j
+@AllArgsConstructor
+public class ComplaintController {
+
+    private final ComplaintService complaintService;
+
+    @PostMapping
+    public ResponseEntity<ComplaintCreateResponse> createComplaint(@RequestBody ComplaintCreateRequest complaintRequest) {
+
+        return ResponseEntity.status(HttpStatusCode.valueOf(201)).body(complaintService.createComplaint(complaintRequest));
+
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<ComplaintResponse> getComplaint(@PathVariable String id) {
+        ComplaintResponse complaintResponse = complaintService.getComplaintById(id);
+        return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(complaintResponse);
+    }
+
+}
