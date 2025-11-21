@@ -65,7 +65,7 @@ public class ComplaintService {
                     .attackerName(complaintRequest.getAttackerName())
                     .value(complaintRequest.getValue())
                     .locationCity(locationCity)
-                    .statusComplaint("IN_PROGRESS")
+                    .statusComplaint("Aberta")
                     .createdDate(LocalDateTime.now().toString())
                     .protocolNumber(protocolNumber)
                     .build();
@@ -103,7 +103,7 @@ public class ComplaintService {
                 .createdDate(complaintEntity.getCreatedDate())
                 .descriptionComplaint(complaintEntity.getDescriptionComplaint())
                 .protocolNumber(complaintEntity.getProtocolNumber())
-                .message("Complaint found with success!")
+                .message("Sua solicitação está aguardando análise!")
                 .build();
     }
 }
