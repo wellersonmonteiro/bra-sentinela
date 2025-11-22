@@ -1,8 +1,6 @@
 package com.projeto.apigateway.config;
 
-import com.projeto.apigateway.controller.dto.ComplaintCreateRequest;
-import com.projeto.apigateway.controller.dto.ComplaintCreateResponse;
-import com.projeto.apigateway.controller.dto.ComplaintResponse;
+import com.projeto.apigateway.controller.dto.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,4 +20,8 @@ public interface ComplaintClient {
     
     @PostMapping("/v1/complaint")
     ComplaintCreateResponse createComplaint(@RequestBody ComplaintCreateRequest request);
+
+    @PutMapping("/v1/complaint/{id}")
+    ComplaintUpdateResponse updateComplaint(@PathVariable String id, @RequestBody ComplaintUpdateRequest request);
+
 }

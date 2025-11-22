@@ -2,9 +2,7 @@ package com.projeto.complaintservice.service;
 
 
 import com.projeto.complaintservice.config.ComplaintProducer;
-import com.projeto.complaintservice.controller.dto.ComplaintCreateRequest;
-import com.projeto.complaintservice.controller.dto.ComplaintCreateResponse;
-import com.projeto.complaintservice.controller.dto.ComplaintResponse;
+import com.projeto.complaintservice.controller.dto.*;
 import com.projeto.complaintservice.entity.ComplaintEntity;
 import com.projeto.complaintservice.entity.LocationCity;
 import com.projeto.complaintservice.exception.ComplaintException;
@@ -60,7 +58,7 @@ public class ComplaintService {
                     .customerId(complaintRequest.getCustomerId())
                     .descriptionComplaint(complaintRequest.getDescription())
                     .description(complaintRequest.getDate())
-                    .message(complaintRequest.getTime())
+                    .message("Sua solicitação está aguardando análise!")
                     .channel(complaintRequest.getChannel())
                     .attackerName(complaintRequest.getAttackerName())
                     .value(complaintRequest.getValue())
@@ -88,6 +86,19 @@ public class ComplaintService {
         }
     }
 
+    public ComplaintUpdateResponse updateComplaint(String id, ComplaintUpdateRequest complaintRequest) {
+        ComplaintEntity complaintEntity = complaintRepository.findByProtocolNumber(id);
+        if (complaintEntity == null) {
+            throw new ComplaintException("Complaint not found", "NotFoundError");
+        }
+        complaintEntity.setStatusComplaint(complaintRequest.statusComplaint());
+        complaintEntity.setMessage(complaintRequest.complaintMessage());
+        complaintEntity.setInternalMessage(complaintRequest.internalComment());
+
+        complaintRepository.save(complaintEntity);
+        return new ComplaintUpdateResponse("Complaint updated successfully");
+    }
+
     private static String getString() {
         return PROT + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
@@ -103,7 +114,7 @@ public class ComplaintService {
                 .createdDate(complaintEntity.getCreatedDate())
                 .descriptionComplaint(complaintEntity.getDescriptionComplaint())
                 .protocolNumber(complaintEntity.getProtocolNumber())
-                .message("Sua solicitação está aguardando análise!")
+                .message(complaintEntity.getMessage())
                 .build();
     }
 }

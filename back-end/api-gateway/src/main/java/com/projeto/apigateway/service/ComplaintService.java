@@ -1,9 +1,7 @@
 package com.projeto.apigateway.service;
 
 import com.projeto.apigateway.config.ComplaintClient;
-import com.projeto.apigateway.controller.dto.ComplaintCreateRequest;
-import com.projeto.apigateway.controller.dto.ComplaintCreateResponse;
-import com.projeto.apigateway.controller.dto.ComplaintResponse;
+import com.projeto.apigateway.controller.dto.*;
 import com.projeto.apigateway.exceptions.ComplaintException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +29,16 @@ public class ComplaintService {
             return complaintClient.getComplaintById(id);
         } catch (ComplaintException complaintException) {
             log.error("Error fetching complaint: {}", complaintException.getMessage());
+            throw complaintException;
+        }
+
+    }
+
+    public ComplaintUpdateResponse updateComplaint(String id, ComplaintUpdateRequest complaintRequest) {
+        try {
+            return complaintClient.updateComplaint(id, complaintRequest);
+        } catch (ComplaintException complaintException) {
+            log.error("Error updating complaint: {}", complaintException.getMessage());
             throw complaintException;
         }
 
