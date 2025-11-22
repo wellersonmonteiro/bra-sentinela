@@ -1,9 +1,7 @@
 package com.projeto.apigateway.controller;
 
 
-import com.projeto.apigateway.controller.dto.ComplaintCreateRequest;
-import com.projeto.apigateway.controller.dto.ComplaintCreateResponse;
-import com.projeto.apigateway.controller.dto.ComplaintResponse;
+import com.projeto.apigateway.controller.dto.*;
 import com.projeto.apigateway.service.ComplaintService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,5 +28,13 @@ public class ComplaintController {
         ComplaintResponse complaintResponse = complaintService.getComplaintById(id);
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(complaintResponse);
     }
+
+    @PutMapping ("/{id}")
+    public ResponseEntity<ComplaintUpdateResponse> updateComplaint(@PathVariable String id,
+                                                                   @RequestBody ComplaintUpdateRequest complaintRequest) {
+        ComplaintUpdateResponse complaintUpdateResponse = complaintService.updateComplaint(id, complaintRequest);
+        return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(complaintUpdateResponse);
+    }
+
 
 }
