@@ -9,6 +9,17 @@ import StepComplaintDetails from './formSteps/StepComplaintDetails';
 import StepEvidence from './formSteps/StepEvidence';
 import StepSuccess from './formSteps/StepSuccess';
 
+const formatDateToBackend = (isoDate) => {
+    if (!isoDate) return "";
+    const [year, month, day] = isoDate.split('-');
+    return `${day}/${month}/${year}`;
+};
+
+const cleanValueToString = (value) => {
+    if (!value) return "0";
+    return value.toString().replace("R$", "").replace(/\s/g, "").replace(",", ".");
+};
+
 function ComplaintFormOrchestrator() {
 
     const { formData } = useForm();
@@ -37,58 +48,44 @@ function ComplaintFormOrchestrator() {
         e.preventDefault();
         setLoading(true);
         setError(null);
-        let customerId = null;
-
-        console.log("--- MODO DE TESTE (MOCK) ATIVADO ---");
-        console.log("Dados do Usuário (se houver):", {
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            cpf: formData.cpf,
-        });
-        console.log("Dados da Denúncia:", formData);
-
+        let customerIdString = null;
 
         try {
-
-            await new Promise(r => setTimeout(r, 1500));
-
-
-
-
             if (!formData.isAnonymous) {
                 const userPayload = {
-                    name: formData.name,
+                    fullName: formData.name,
                     email: formData.email,
                     phone: formData.phone,
                     cpf: formData.cpf,
                 };
-                const userResponse = await registerUser(userPayload);
-                customerId = userResponse.id;
-            }
 
+                const userResponse = await registerUser(userPayload);
+                const rawId = userResponse.id || userResponse.userId;
+                customerIdString = rawId ? String(rawId) : null;
+            }
 
             const complaintPayload = {
                 description: formData.description,
-                date: formData.date,
+                date: formatDateToBackend(formData.date),
                 time: formData.time,
                 channel: formData.channel,
                 attackerName: formData.attackerName,
-                value: formData.value,
-                locationCity: { city: formData.city, state: formData.state },
-                files: formData.files.map(base64String => base64String.split(',')[1]),
-                customerId: customerId,
+                value: cleanValueToString(formData.value),
+                locationCity: {
+                    city: formData.city,
+                    state: formData.state
+                },
+                files: (formData.files || []).map(base64String => base64String.split(',')[1]),
+                customerId: customerIdString,
             };
+
             const complaintResponse = await registerComplaint(complaintPayload);
-            const newProtocol = complaintResponse.protocol;
-
-
-            setProtocol(newProtocol);
+            setProtocol(complaintResponse.protocol);
             setCurrentStep(5);
 
         } catch (err) {
-            console.error("Erro inesperado no modo MOCK:", err);
-            setError('Houve um erro inesperado ao testar o formulário.');
+            console.error(err);
+            setError('Erro ao processar o envio. Tente novamente.');
         } finally {
             setLoading(false);
         }

@@ -2,6 +2,24 @@ import React, { useState } from 'react';
 import { getComplaintByProtocol } from '../services/complaintService';
 import './TrackComplaintPage.css';
 
+
+const formatDate = (isoString) => {
+    if (!isoString) return 'Data indisponível';
+
+    try {
+        const date = new Date(isoString);
+        return date.toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch (e) {
+        return isoString;
+    }
+};
+
 function TrackComplaintPage() {
     const [protocolInput, setProtocolInput] = useState('');
     const [complaintData, setComplaintData] = useState(null);
@@ -20,6 +38,7 @@ function TrackComplaintPage() {
             const data = await getComplaintByProtocol(protocolInput);
             setComplaintData(data);
         } catch (err) {
+
             if (err.response && err.response.status === 404) {
                 setError('Protocolo não encontrado. Verifique o número e tente novamente.');
             } else {
@@ -29,6 +48,20 @@ function TrackComplaintPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const formatStatus = (status) => {
+        const map = {
+            'OPEN': 'Aberta',
+            'ABERTA': 'Aberta',
+            'IN_ANALYSIS': 'Em Análise',
+            'EM_ANALISE': 'Em Análise',
+            'VALIDATED': 'Validada',
+            'VALIDADA': 'Validada',
+            'INCONSISTENT': 'Inconsistente',
+            'INCONSISTENTE': 'Inconsistente'
+        };
+        return map[status] || status;
     };
 
     return (
@@ -63,22 +96,31 @@ function TrackComplaintPage() {
             {complaintData && (
                 <div className="track-result-card">
                     <h3>Detalhes da Denúncia</h3>
+
                     <div className="result-item">
                         <strong>Protocolo:</strong>
                         <span>{complaintData.protocolNumber}</span>
                     </div>
+
                     <div className="result-item">
                         <strong>Status:</strong>
-                        <span className="status-badge">{complaintData.statusComplaint}</span>
+
+                        <span className={`status-badge ${complaintData.statusComplaint?.toLowerCase()}`}>
+                            {formatStatus(complaintData.statusComplaint)}
+                        </span>
                     </div>
+
                     <div className="result-item">
                         <strong>Data de Criação:</strong>
-                        <span>{complaintData.cratedDate}</span>
+                        <span>{formatDate(complaintData.createdDate)}</span>
                     </div>
+
                     <div className="result-item">
                         <strong>Descrição:</strong>
                         <p>{complaintData.descriptionComplaint}</p>
                     </div>
+
+
                     {complaintData.message && (
                         <div className="result-item">
                             <strong>Mensagem do Atendente:</strong>

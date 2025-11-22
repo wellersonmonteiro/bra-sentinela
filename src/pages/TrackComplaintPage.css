@@ -1,11 +1,11 @@
 .track-page-container {
-    max-width: 800px;
+    max-width: 95%;
     margin: 20px auto;
     color: #E0E0E0;
     background-color: #2D2D2D;
     border-radius: 8px;
     padding: 30px;
-    border: 1px solid #444; /* Borda sutil */
+    border: 1px solid #444;
     box-sizing: border-box;
 }
 
@@ -60,7 +60,7 @@
 .track-form .cta-button {
     background-color: #D32F2F;
     color: white;
-    padding: 0 24px; /* Padding horizontal */
+    padding: 0 24px;
     border: none;
     border-radius: 4px;
     font-size: 1rem;

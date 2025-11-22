@@ -5,7 +5,6 @@ export const registerUser = async (userData) => {
         const response = await api.post('/v1/user', userData);
         return response.data;
     } catch (error) {
-        console.error("Erro ao registrar usuário:", error.response || error.message);
         throw error;
     }
 };
@@ -15,7 +14,6 @@ export const registerComplaint = async (complaintData) => {
         const response = await api.post('/v1/complaint', complaintData);
         return response.data;
     } catch (error) {
-        console.error("Erro ao registrar denúncia:", error.response || error.message);
         throw error;
     }
 };
@@ -25,43 +23,45 @@ export const getComplaintByProtocol = async (protocolId) => {
         const response = await api.get(`/v1/complaint/${protocolId}`);
         return response.data;
     } catch (error) {
-        console.error("Erro ao buscar denúncia:", error.response || error.message);
         throw error;
     }
 };
 
-
-const getComplaints = async (filters) => {
+export const getComplaints = async (filters) => {
     const params = new URLSearchParams();
 
-    if (filters && filters.type) params.append('tipo', filters.type);
-    if (filters && filters.date) params.append('data', filters.date);
-    if (filters && filters.location) params.append('local', filters.location);
-    if (filters && filters.status) params.append('status', filters.status);
+    if (filters) {
+        if (filters.type) params.append('tipo', filters.type);
+        if (filters.date) params.append('data', filters.date);
+        if (filters.location) params.append('local', filters.location);
+        if (filters && filters.status) params.append('status', filters.status);
+    }
 
     try {
         const response = await api.get('/v1/complaint', { params });
         return response.data;
     } catch (error) {
-        console.error('Erro ao buscar denúncias:', error);
+        console.error(error);
         return [];
     }
 };
 
-const updateComplaintStatus = async (complaintId, analysisData) => {
+export const updateComplaintStatus = async (complaintId, analysisData) => {
     try {
         const response = await api.put(`/v1/analysis/${complaintId}`, analysisData);
-        if (response.status === 203) {
-            return { success: true, message: response.data.message };
+        if (response.status >= 200 && response.status < 300) {
+            return { success: true, message: response.data?.message || 'Atualizado com sucesso' };
         }
         return { success: false };
     } catch (error) {
-        console.error('Error updating status:', error);
         return { success: false, error: error.message };
     }
 };
 
 export const complaintService = {
+    registerUser,
+    registerComplaint,
+    getComplaintByProtocol,
     getComplaints,
     updateComplaintStatus,
 };
