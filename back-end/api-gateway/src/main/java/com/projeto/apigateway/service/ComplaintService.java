@@ -45,7 +45,7 @@ public class ComplaintService {
     }
 
     private ComplaintResponse getMock(String id) {
-        if (!id.equals(PROTOCOL)) {
+        if (id.equals(PROTOCOL)) {
             throw new ComplaintException("Complaint not found", "NotFoundError");
         } else {
             ComplaintResponse complaintResponse = ComplaintResponse.builder().statusComplaint("IN_PROGRESS")
