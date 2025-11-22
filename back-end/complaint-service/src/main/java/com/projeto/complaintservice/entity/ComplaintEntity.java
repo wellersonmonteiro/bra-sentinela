@@ -52,9 +52,9 @@ public class ComplaintEntity {
     String descriptionComplaint;
     String protocolNumber = genaredProtocolNumber();
     String message;
+    String internalMessage;
 
     private String genaredProtocolNumber() {
         return "PROT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 }
-
