@@ -17,14 +17,14 @@ public class ComplaintProducer {
         log.info("Sending complaint created event: {}", event.getProtocol());
         
         try {
-            // Enviar para Protocol Service
+            
             rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE,
                 RabbitMQConfig.ROUTING_KEY_PROTOCOL,
                 event
             );
             
-            // Enviar para Notification Service
+            
             rabbitTemplate.convertAndSend(
                 RabbitMQConfig.EXCHANGE,
                 RabbitMQConfig.ROUTING_KEY_NOTIFICATION,
