@@ -5,6 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
+
         <version>3.2.0</version> <relativePath/>
     </parent>
 
@@ -12,6 +13,7 @@
     <artifactId>user-service</artifactId> <version>0.0.1-SNAPSHOT</version>
     <name>userservice</name>
     <description>user service A3 SDM</description>
+
 
     <properties>
         <java.version>17</java.version>
