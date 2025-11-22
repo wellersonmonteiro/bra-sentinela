@@ -2,9 +2,7 @@ package com.projeto.complaintservice.controller;
 
 
 
-import com.projeto.complaintservice.controller.dto.ComplaintCreateRequest;
-import com.projeto.complaintservice.controller.dto.ComplaintCreateResponse;
-import com.projeto.complaintservice.controller.dto.ComplaintResponse;
+import com.projeto.complaintservice.controller.dto.*;
 import com.projeto.complaintservice.service.ComplaintService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +30,12 @@ public class ComplaintController {
     public ResponseEntity<ComplaintResponse> getComplaint(@PathVariable String id) {
         ComplaintResponse complaintResponse = complaintService.getComplaintById(id);
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(complaintResponse);
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<ComplaintUpdateResponse> updateComplaint(@PathVariable String id,
+                                                                   @RequestBody ComplaintUpdateRequest complaintRequest) {
+        ComplaintUpdateResponse complaintUpdateResponse = complaintService.updateComplaint(id, complaintRequest);
+        return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(complaintUpdateResponse);
     }
 
 }
