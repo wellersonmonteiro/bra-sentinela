@@ -1,6 +1,7 @@
 package com.projeto.complaintservice.config;
 
 import com.projeto.complaintservice.controller.dto.ComplaintCreateResponse;
+import com.projeto.complaintservice.controller.dto.ProtocolGeneratedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -13,8 +14,8 @@ public class ComplaintProducer {
     
     private final RabbitTemplate rabbitTemplate;
     
-    public void sendComplaintCreated(ComplaintCreateResponse event) {
-        log.info("Sending complaint created event: {}", event.getProtocol());
+    public void sendComplaintCreated(ProtocolGeneratedEvent event) {
+        log.info("Sending complaint created event: {}", event.getProtocolNumber());
         
         try {
             

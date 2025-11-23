@@ -77,7 +77,14 @@ public class ComplaintService {
                     .protocol(savedEntity.getProtocolNumber())
                     .build();
 
-            complaintProducer.sendComplaintCreated(response);
+            ProtocolGeneratedEvent event = ProtocolGeneratedEvent.builder()
+                    .protocolNumber(savedEntity.getProtocolNumber())
+                    .complaintId("123123123124")
+                    .userName("Maria Silva")
+                    .userEmail("mail@gmail.com")
+                    .generatedAt(LocalDateTime.now().toString())
+                    .build();
+            complaintProducer.sendComplaintCreated(event);
             return response;
 
         } catch (Exception e) {
