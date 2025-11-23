@@ -13,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Service
@@ -49,10 +52,21 @@ public class ComplaintService {
 
 
             LocationCity locationCity = null;
-            if (complaintRequest.getLocationCity() != null && complaintRequest.getLocationCity().getId() != null) {
-                locationCity = locationCityRepository.findById(complaintRequest.getLocationCity().getId())
-                        .orElse(locationCityRepository.save(complaintRequest.getLocationCity()));
+            if (complaintRequest.getLocationCity() != null) {
+
+                if (complaintRequest.getLocationCity().getId() != null && complaintRequest.getLocationCity().getId() > 0) {
+                    locationCity = locationCityRepository.findById(complaintRequest.getLocationCity().getId())
+                            .orElse(null);
+                }
+
+                if (locationCity == null) {
+                    LocationCity newLocationCity = new LocationCity();
+                    newLocationCity.setCity(complaintRequest.getLocationCity().getCity());
+                    newLocationCity.setState(complaintRequest.getLocationCity().getState());
+                    locationCity = locationCityRepository.save(newLocationCity);
+                }
             }
+
 
             ComplaintEntity complaintEntity = ComplaintEntity.builder()
                     .customerId(complaintRequest.getCustomerId())
@@ -66,6 +80,7 @@ public class ComplaintService {
                     .statusComplaint("Aberta")
                     .createdDate(LocalDateTime.now().toString())
                     .protocolNumber(protocolNumber)
+                    .files(complaintRequest.getFiles())
                     .build();
 
 
@@ -99,8 +114,26 @@ public class ComplaintService {
         return new ComplaintUpdateResponse("Complaint updated successfully");
     }
 
+    public List<ComplaintListResponse> getAllComplaints() {
+        return findAllMapping();
+    }
+
     private static String getString() {
         return PROT + java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    private List<ComplaintListResponse> findAllMapping() {
+        List<ComplaintEntity> complaintEntitys = complaintRepository.findAll();
+
+        return complaintEntitys.stream().map(complaintEntity ->
+                ComplaintListResponse.builder()
+                        .protocol(complaintEntity.getProtocolNumber())
+                        .status(complaintEntity.getStatusComplaint())
+                        .date(complaintEntity.getCreatedDate())
+                        .id(complaintEntity.getId())
+                        .channel(complaintEntity.getChannel())
+                        .build()
+        ).toList();
     }
 
     private ComplaintResponse getCompaint(String id) {
@@ -116,6 +149,28 @@ public class ComplaintService {
                 .protocolNumber(complaintEntity.getProtocolNumber())
                 .message(complaintEntity.getMessage())
                 .build();
+    }
+
+    public ComplaintDetailResponse getComplaintDetailsByCustomerId(UUID id) {
+        Optional<ComplaintEntity> complaint = complaintRepository.findById(id);
+
+        if (complaint.isPresent()) {
+            ComplaintEntity complaintEntity = complaint.get();
+            return ComplaintDetailResponse.builder()
+                    .protocol(complaintEntity.getProtocolNumber())
+                    .status(complaintEntity.getStatusComplaint())
+                    .description(complaintEntity.getDescriptionComplaint())
+                    .createdAt(complaintEntity.getCreatedDate())
+                    .channel(complaintEntity.getChannel())
+                    .attackerName(complaintEntity.getAttackerName())
+                    .locationCity(complaintEntity.getLocationCity())
+                    .files(complaintEntity.getFiles())
+                    .value(complaintEntity.getValue())
+                    .build();
+        } else {
+            throw new ComplaintException("Complaint not found for customer ID: " + id, "NotFoundError");
+        }
+
     }
 }
 

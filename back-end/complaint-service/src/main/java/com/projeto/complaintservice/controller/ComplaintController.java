@@ -6,10 +6,12 @@ import com.projeto.complaintservice.controller.dto.*;
 import com.projeto.complaintservice.service.ComplaintService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -36,6 +38,16 @@ public class ComplaintController {
                                                                    @RequestBody ComplaintUpdateRequest complaintRequest) {
         ComplaintUpdateResponse complaintUpdateResponse = complaintService.updateComplaint(id, complaintRequest);
         return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(complaintUpdateResponse);
+    }
+    @GetMapping
+    public ResponseEntity<List<ComplaintListResponse>> getAllComplaints() {
+
+        return ResponseEntity.status(HttpStatus.OK).body(complaintService.getAllComplaints());
+    }
+
+    @GetMapping("/customer/{id}/details")
+    public ComplaintDetailResponse getComplaintDetailsByCustomerId(@PathVariable UUID id) {
+        return complaintService.getComplaintDetailsByCustomerId(id);
     }
 
 }
