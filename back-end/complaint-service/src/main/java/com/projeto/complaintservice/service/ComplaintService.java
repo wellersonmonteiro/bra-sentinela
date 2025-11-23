@@ -81,7 +81,7 @@ public class ComplaintService {
                     .protocolNumber(savedEntity.getProtocolNumber())
                     .complaintId("123123123124")
                     .userName("Maria Silva")
-                    .userEmail("010102well@gmail.com")
+                    .userEmail("mail@gmail.com")
                     .generatedAt(LocalDateTime.now().toString())
                     .build();
             complaintProducer.sendComplaintCreated(event);
