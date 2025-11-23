@@ -1,6 +1,6 @@
 package com.projeto.apigateway.controller;
 
-import com.projeto.apigateway.controller.dto.ReportResponde;
+import com.projeto.apigateway.controller.dto.ComplaintReportQuantitiesResponse;
 import com.projeto.apigateway.service.ReportService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +15,8 @@ public class ReportController {
     private final ReportService reportService;
 
     @GetMapping
-    public ResponseEntity<ReportResponde> generateReport() {
-        ReportResponde reportResponde = reportService.generateReport();
-        return ResponseEntity.ok(reportResponde);
+    public ResponseEntity<ComplaintReportQuantitiesResponse> generateReportQuantities() {
+
+        return ResponseEntity.ok(reportService.generatedCountReport());
     }
 }
