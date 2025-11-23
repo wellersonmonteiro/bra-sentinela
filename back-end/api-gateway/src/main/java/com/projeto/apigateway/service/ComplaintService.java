@@ -5,7 +5,11 @@ import com.projeto.apigateway.controller.dto.*;
 import com.projeto.apigateway.exceptions.ComplaintException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @AllArgsConstructor
 @Service
@@ -44,4 +48,11 @@ public class ComplaintService {
 
     }
 
+    public List<ComplaintListResponse> getAllComplaints() {
+        return complaintClient.getComplaints();
+    }
+
+    public ComplaintDetailResponse getComplaintDetailsByCustomerId(UUID id) {
+        return complaintClient.getComplaintDetailsByCustomerId(id);
+    }
 }
