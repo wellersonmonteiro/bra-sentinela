@@ -1,0 +1,91 @@
+package com.projeto.complaintservice.service;
+
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.projeto.complaintservice.controller.dto.MonthlyComplaintDetailedReportResponse;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+@Slf4j
+public class PdfReportService {
+
+    private final ReportService reportService;
+
+    public byte[] generateMonthlyReportPdf(int months) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(baos);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            // Título
+            document.add(new Paragraph("Relatório Detalhado de Denúncias")
+                    .setFontSize(18)
+                    .setBold()
+                    .setTextAlignment(TextAlignment.CENTER));
+
+            document.add(new Paragraph("Período: Últimos " + months + " meses")
+                    .setFontSize(12)
+                    .setTextAlignment(TextAlignment.CENTER));
+
+            document.add(new Paragraph("Gerado em: " + 
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
+                    .setFontSize(10)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setMarginBottom(20));
+
+            // Dados
+            List<MonthlyComplaintDetailedReportResponse> data = 
+                    reportService.generateLastNMonthsDetailedReport(months);
+
+            // Tabela
+            float[] columnWidths = {2, 1, 1, 1, 1, 1, 1, 1, 1};
+            Table table = new Table(columnWidths);
+
+            // Cabeçalhos
+            table.addHeaderCell("Mês");
+            table.addHeaderCell("Total");
+            table.addHeaderCell("Pendente");
+            table.addHeaderCell("Aberta");
+            table.addHeaderCell("Em Análise");
+            table.addHeaderCell("Validada");
+            table.addHeaderCell("Inconsistente");
+            table.addHeaderCell("Média/Dia");
+            table.addHeaderCell("Variação %");
+
+            // Dados
+            for (MonthlyComplaintDetailedReportResponse row : data) {
+                table.addCell(row.monthName() + "/" + row.year());
+                table.addCell(String.valueOf(row.total()));
+                table.addCell(String.valueOf(row.pending()));
+                table.addCell(String.valueOf(row.open()));
+                table.addCell(String.valueOf(row.inProgress()));
+                table.addCell(String.valueOf(row.validated()));
+                table.addCell(String.valueOf(row.inconsistent()));
+                table.addCell(String.format("%.2f", row.averagePerDay()));
+                table.addCell(String.format("%.2f%%", row.percentageChange()));
+            }
+
+            document.add(table);
+            document.close();
+
+            log.info("PDF generated successfully with {} months of data", months);
+            return baos.toByteArray();
+
+        } catch (Exception e) {
+            log.error("Error generating PDF: {}", e.getMessage());
+            throw new RuntimeException("Erro ao gerar PDF", e);
+        }
+    }
+}
