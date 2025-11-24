@@ -29,7 +29,7 @@ const DashboardPage = () => {
         const counts = { abertas: 0, emAnalise: 0, validadas: 0, inconsistentes: 0 };
 
         data.forEach(item => {
-            const status = (item.status || "").toLowerCase();
+            const status = (item.status || item.statusComplaint || "").toLowerCase();
 
             if (status.includes('aberta') || status === 'open') counts.abertas++;
             else if (status.includes('analise') || status === 'in_analysis') counts.emAnalise++;
@@ -69,9 +69,13 @@ const DashboardPage = () => {
                 status: item.status || item.statusComplaint || 'ABERTA'
             })) : [];
 
-            setComplaints(formattedData);
+            formattedData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
             setKpiData(calculateKpis(formattedData));
             setChartData(calculateChartData(formattedData));
+
+            const recentComplaints = formattedData.slice(0, 5);
+            setComplaints(recentComplaints);
 
         } catch (error) {
             console.error(error);
@@ -110,6 +114,7 @@ const DashboardPage = () => {
                     <ComplaintList
                         complaints={complaints}
                         onAnalyzeClick={handleAnalyzeClick}
+                        title="Últimas Denúncias"
                     />
                 </div>
 

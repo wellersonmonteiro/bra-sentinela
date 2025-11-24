@@ -1,63 +1,73 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './DashboardWidgets.css';
 import { complaintService } from '../../services/complaintService';
-
+import { FileDown } from 'lucide-react';
 
 const ReportWidget = () => {
+    const [isDownloading, setIsDownloading] = useState(false);
+    const [selectedPeriod, setSelectedPeriod] = useState(6);
 
     const handleDownload = async (e) => {
         e.preventDefault();
-        const formData = new FormData(e.target);
-        const reportParams = {
-            type: formData.get('report_type'),
-            start: formData.get('start_date'),
-            end: formData.get('end_date'),
-        };
+        setIsDownloading(true);
 
         try {
-            // const fileBlob = await complaintService.downloadReport(reportParams);
-            alert(`Simulando download:\nTipo: ${reportParams.type}\nInício: ${reportParams.start}\nFim: ${reportParams.end}`);
+            await complaintService.downloadReportPdf(selectedPeriod);
         } catch (error) {
-            console.error('Erro ao baixar relatório:', error);
-            alert('Falha ao gerar o relatório.');
+            alert('Falha ao gerar o relatório. Tente novamente.');
+        } finally {
+            setIsDownloading(false);
         }
     };
 
     return (
         <div className="widget-card">
-            <h3 className="widget-title">Gerar Relatório Rápido</h3>
-            <form className="widget-form" onSubmit={handleDownload}>
-                <div className="form-group">
-                    <label htmlFor="report_type" className="form-label">Tipo de Relatório</label>
-                    <select id="report_type" name="report_type" className="form-select">
-                        <option value="resumo_mensal">Resumo Mensal</option>
-                        <option value="por_canal">Denúncias por Canal</option>
-                        <option value="status_validacao">Status de Validação</option>
-                        <option value="export_csv">Exportação Completa (CSV)</option>
-                    </select>
-                </div>
-                <div className="form-group">
-                    <label htmlFor="start_date" className="form-label">Data Início</label>
-                    <input type="date" id="start_date" name="start_date" className="form-input" />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="end_date" className="form-label">Data Fim</label>
-                    <input type="date" id="end_date" name="end_date" className="form-input" />
-                </div>
-                <button type="submit" className="button button-dark">
-                    Gerar Relatório
-                </button>
-            </form>
+            <h3 className="widget-title">Relatórios</h3>
+            <div className="widget-content">
+                <p className="widget-description">
+                    Baixe o relatório analítico completo em formato PDF. Selecione o período desejado abaixo.
+                </p>
+
+                <form onSubmit={handleDownload} className="widget-form">
+                    <div className="form-group">
+                        <label className="form-label">Período de Análise</label>
+                        <select
+                            className="form-select"
+                            value={selectedPeriod}
+                            onChange={(e) => setSelectedPeriod(Number(e.target.value))}
+                        >
+                            <option value={1}>Último Mês</option>
+                            <option value={3}>Últimos 3 Meses</option>
+                            <option value={6}>Últimos 6 Meses</option>
+                        </select>
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="button button-primary full-width"
+                        disabled={isDownloading}
+                    >
+                        {isDownloading ? 'Gerando PDF...' : (
+                            <>
+                                <FileDown size={18} style={{ marginRight: '8px' }} />
+                                Baixar Relatório PDF
+                            </>
+                        )}
+                    </button>
+                </form>
+            </div>
+            <div className="widget-footer">
+                <Link to="/relatorios">Ver dashboard completo &rarr;</Link>
+            </div>
         </div>
     );
 };
-
 
 const DashboardWidgets = () => {
     return (
         <div className="widgets-container">
             <ReportWidget />
-
         </div>
     );
 };

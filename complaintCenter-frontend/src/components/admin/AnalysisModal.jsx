@@ -8,10 +8,41 @@ const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 };
 
+const getMimeType = (base64String) => {
+    if (base64String && base64String.startsWith('data:')) {
+        const match = base64String.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9\-\.]+);base64,/);
+        return match ? match[1] : 'application/octet-stream';
+    }
+
+    const base64Content = base64String.length > 50 ? base64String.substring(0, 50) : base64String;
+
+    if (base64Content.startsWith('JVBERi0')) {
+        return 'application/pdf';
+    }
+    if (base64Content.startsWith('iVBORw0KGgo')) {
+        return 'image/png';
+    }
+    if (base64Content.startsWith('/9j/')) {
+        return 'image/jpeg';
+    }
+
+    return 'application/octet-stream';
+}
+
 const getBase64Src = (base64String) => {
     if (!base64String) return '';
-    if (base64String.startsWith('data:image')) return base64String;
-    return `data:image/png;base64,${base64String}`;
+
+    if (base64String.startsWith('data:')) {
+        return base64String;
+    }
+
+    const mimeType = getMimeType(base64String);
+    return `data:${mimeType};base64,${base64String}`;
+};
+
+const isImage = (base64String) => {
+    const mimeType = getMimeType(base64String);
+    return mimeType.startsWith('image/');
 };
 
 const AnalysisModal = ({ complaint, onClose }) => {
@@ -51,7 +82,9 @@ const AnalysisModal = ({ complaint, onClose }) => {
         };
 
         try {
-            const result = await complaintService.updateComplaintStatus(complaint.id, updateData);
+            const identifier = complaint.displayProtocol || complaint.protocol || complaint.protocolNumber;
+
+            const result = await complaintService.updateComplaintStatus(identifier, updateData);
 
             if (result.success) {
                 alert('Análise salva com sucesso!');
@@ -131,16 +164,35 @@ const AnalysisModal = ({ complaint, onClose }) => {
                                 <div className="evidence-section">
                                     <h5 className="subsection-title"><ImageIcon size={14}/> Evidências Anexadas ({fullDetails.files.length})</h5>
                                     <div className="evidence-grid">
-                                        {fullDetails.files.map((fileBase64, index) => (
-                                            <div key={index} className="evidence-item">
-                                                <img
-                                                    src={getBase64Src(fileBase64)}
-                                                    alt={`Evidência ${index + 1}`}
-                                                    className="evidence-img"
-                                                    onClick={() => window.open(getBase64Src(fileBase64), '_blank')}
-                                                />
-                                            </div>
-                                        ))}
+                                        {fullDetails.files.map((fileBase64, index) => {
+                                            const fileSrc = getBase64Src(fileBase64);
+                                            const mimeType = getMimeType(fileBase64);
+                                            const fileExtension = mimeType.split('/').pop() || 'bin';
+                                            const fileName = `evidencia-${index + 1}.${fileExtension}`;
+                                            const isFileImage = isImage(fileBase64);
+
+                                            return (
+                                                <a
+                                                    key={index}
+                                                    href={fileSrc}
+                                                    download={fileName}
+                                                    className="evidence-item"
+                                                >
+                                                    {isFileImage ? (
+                                                        <img
+                                                            src={fileSrc}
+                                                            alt={`Evidência ${index + 1}`}
+                                                            className="evidence-img"
+                                                        />
+                                                    ) : (
+                                                        <div className="evidence-file-icon">
+                                                            <FileText size={48} />
+                                                            <span className="file-type">{fileExtension.toUpperCase()}</span>
+                                                        </div>
+                                                    )}
+                                                </a>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -161,7 +213,7 @@ const AnalysisModal = ({ complaint, onClose }) => {
                                 onChange={(e) => setStatusComplaint(e.target.value)}
                                 className="form-select"
                             >
-                                <option value="ABERTA">Aberta</option>
+                                <option value="ABERTA" disabled>Aberta</option>
                                 <option value="EM_ANALISE">Em Análise</option>
                                 <option value="VALIDADA">Validada (Procedente)</option>
                                 <option value="INCONSISTENTE">Inconsistente (Improcedente)</option>

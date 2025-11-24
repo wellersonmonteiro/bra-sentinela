@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './ComplaintList.css';
 
 const formatDate = (dateString) => {
@@ -84,7 +85,7 @@ const ComplaintList = ({ complaints, onAnalyzeClick, title, showFooter = true })
 
             {showFooter && (
                 <div className="complaint-list-footer">
-                    <a href="#">Ver todas as denúncias &rarr;</a>
+                    <Link to="/fila">Ver todas as denúncias &rarr;</Link>
                 </div>
             )}
         </div>

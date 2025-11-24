@@ -52,11 +52,10 @@ function ComplaintFormOrchestrator() {
 
         try {
             if (!formData.isAnonymous) {
+
                 const userPayload = {
                     fullName: formData.name,
-                    email: formData.email,
-                    phone: formData.phone,
-                    cpf: formData.cpf,
+                    email: formData.email
                 };
 
                 const userResponse = await registerUser(userPayload);

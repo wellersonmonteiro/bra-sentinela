@@ -66,10 +66,44 @@ export const updateComplaintStatus = async (complaintId, updateData) => {
     }
 };
 
+export const getReportQuantities = async () => {
+    try {
+        const response = await api.get('/v1/report');
+        return response.data;
+    } catch (error) {
+        return { open: 0, inProgress: 0, validated: 0, inconsistent: 0 };
+    }
+};
+
+export const downloadReportPdf = async (months = 6) => {
+    try {
+
+        const response = await api.get(`/v1/report/last-months/pdf`, {
+            params: { months },
+            responseType: 'blob'
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `relatorio_denuncias_ultimos_${months}_meses.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+        return true;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const complaintService = {
     registerUser,
     registerComplaint,
     getComplaintByProtocol,
     getComplaints,
     updateComplaintStatus,
+    getReportQuantities,
+    downloadReportPdf
 };

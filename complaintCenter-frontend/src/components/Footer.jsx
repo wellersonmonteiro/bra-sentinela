@@ -20,7 +20,7 @@ function Footer() {
                 </div>
             </div>
 
-            {/* 2. Barra Inferior (Copyright) */}
+
             <div className="footer-bottom">
                 <p>© 2025 Central de Denúncias. Todos os direitos reservados.</p>
             </div>

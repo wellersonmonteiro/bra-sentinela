@@ -19,6 +19,9 @@ function StepComplaintDetails({ nextStep, prevStep }) {
     const [cities, setCities] = useState([]);
     const [loadingCities, setLoadingCities] = useState(false);
     const [locationError, setLocationError] = useState(null);
+    const [formError, setFormError] = useState(null);
+
+    const today = new Date().toISOString().split('T')[0];
 
     useEffect(() => {
         const loadStates = async () => {
@@ -55,33 +58,63 @@ function StepComplaintDetails({ nextStep, prevStep }) {
             };
 
             loadCities();
-
-            return () => {
-                controller.abort();
-            };
-
+            return () => controller.abort();
         } else {
             setCities([]);
         }
     }, [formData.state, locationError]);
 
-
     const handleStateChange = (e) => {
         const { value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            state: value,
-            city: ''
-        }));
+        setFormData(prev => ({ ...prev, state: value, city: '' }));
+        if (formError) setFormError(null);
     };
 
     const handleValueChange = (value) => {
         setFormData(prev => ({ ...prev, value: value || '' }));
     };
 
+    const handleInputChange = (e) => {
+        handleChange(e);
+        if (formError) setFormError(null);
+    };
+
+    const handleNext = () => {
+        const requiredFields = [
+            { field: 'channel', label: 'Canal' },
+            { field: 'state', label: 'Estado' },
+            { field: 'city', label: 'Cidade' },
+            { field: 'date', label: 'Data' },
+            { field: 'description', label: 'Descrição' }
+        ];
+
+        for (const { field, label } of requiredFields) {
+            if (!formData[field] || formData[field].trim() === '') {
+                setFormError(`O campo "${label}" é obrigatório.`);
+                const element = document.getElementById(field);
+                if (element) element.focus();
+                return;
+            }
+        }
+
+        if (formData.date > today) {
+            setFormError("A data da ocorrência não pode ser futura.");
+            return;
+        }
+
+        setFormError(null);
+        nextStep();
+    };
+
     return (
         <div className="form-step">
             <h2>Detalhes da Ocorrência</h2>
+
+            {formError && (
+                <div className="alert-box error" style={{ marginBottom: '20px' }}>
+                    {formError}
+                </div>
+            )}
 
             {locationError && (
                 <div className="alert-box error" style={{ marginBottom: '20px' }}>
@@ -89,20 +122,18 @@ function StepComplaintDetails({ nextStep, prevStep }) {
                 </div>
             )}
 
-            <div className="form-group">
+            <div className="form-group special-field">
                 <label htmlFor="channel">Canal utilizado pelo golpista*</label>
                 <select
                     id="channel"
                     name="channel"
                     value={formData.channel || ''}
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     required
                 >
                     <option value="">Selecione um canal...</option>
                     {channelOptions.map(option => (
-                        <option key={option} value={option}>
-                            {option}
-                        </option>
+                        <option key={option} value={option}>{option}</option>
                     ))}
                 </select>
             </div>
@@ -110,7 +141,7 @@ function StepComplaintDetails({ nextStep, prevStep }) {
             <div className="form-row">
                 {locationError ? (
                     <>
-                        <div className="form-group">
+                        <div className="form-group special-field">
                             <label htmlFor="state">Estado (UF)*</label>
                             <input
                                 type="text"
@@ -123,14 +154,14 @@ function StepComplaintDetails({ nextStep, prevStep }) {
                                 required
                             />
                         </div>
-                        <div className="form-group">
+                        <div className="form-group special-field">
                             <label htmlFor="city">Cidade*</label>
                             <input
                                 type="text"
                                 id="city"
                                 name="city"
                                 value={formData.city || ''}
-                                onChange={handleChange}
+                                onChange={handleInputChange}
                                 placeholder="Nome da cidade"
                                 required
                             />
@@ -138,7 +169,7 @@ function StepComplaintDetails({ nextStep, prevStep }) {
                     </>
                 ) : (
                     <>
-                        <div className="form-group">
+                        <div className="form-group special-field">
                             <label htmlFor="state">Estado*</label>
                             <select
                                 id="state"
@@ -150,20 +181,18 @@ function StepComplaintDetails({ nextStep, prevStep }) {
                             >
                                 <option value="">Selecione um estado...</option>
                                 {states.map(state => (
-                                    <option key={state.id} value={state.sigla}>
-                                        {state.nome}
-                                    </option>
+                                    <option key={state.id} value={state.sigla}>{state.nome}</option>
                                 ))}
                             </select>
                         </div>
 
-                        <div className="form-group">
+                        <div className="form-group special-field">
                             <label htmlFor="city">Cidade*</label>
                             <select
                                 id="city"
                                 name="city"
                                 value={formData.city || ''}
-                                onChange={handleChange}
+                                onChange={handleInputChange}
                                 required
                                 disabled={loadingCities || !formData.state}
                             >
@@ -171,9 +200,7 @@ function StepComplaintDetails({ nextStep, prevStep }) {
                                     {loadingCities ? "Carregando..." : (formData.state ? "Selecione uma cidade..." : "Selecione um estado primeiro")}
                                 </option>
                                 {cities.map(city => (
-                                    <option key={city.id} value={city.nome}>
-                                        {city.nome}
-                                    </option>
+                                    <option key={city.id} value={city.nome}>{city.nome}</option>
                                 ))}
                             </select>
                         </div>
@@ -182,42 +209,42 @@ function StepComplaintDetails({ nextStep, prevStep }) {
             </div>
 
             <div className="form-row">
-                <div className="form-group">
+                <div className="form-group special-field">
                     <label htmlFor="date">Data Aproximada*</label>
                     <input
                         type="date"
                         id="date"
                         name="date"
                         value={formData.date || ''}
-                        onChange={handleChange}
+                        onChange={handleInputChange}
+                        max={today}
                         required
                     />
                 </div>
-                <div className="form-group">
-                    <label htmlFor="time">Hora Aproximada*</label>
+                <div className="form-group special-field">
+                    <label htmlFor="time">Hora Aproximada</label>
                     <input
                         type="time"
                         id="time"
                         name="time"
                         value={formData.time || ''}
-                        onChange={handleChange}
-                        required
+                        onChange={handleInputChange}
                     />
                 </div>
             </div>
 
             <div className="form-row">
-                <div className="form-group">
+                <div className="form-group special-field">
                     <label htmlFor="attackerName">Nome ou identificação do golpista</label>
                     <input
                         type="text"
                         id="attackerName"
                         name="attackerName"
                         value={formData.attackerName || ''}
-                        onChange={handleChange}
+                        onChange={handleInputChange}
                     />
                 </div>
-                <div className="form-group">
+                <div className="form-group special-field">
                     <label htmlFor="value">Valor envolvido (se houver)</label>
                     <CurrencyInput
                         id="value"
@@ -233,21 +260,21 @@ function StepComplaintDetails({ nextStep, prevStep }) {
                 </div>
             </div>
 
-            <div className="form-group">
+            <div className="form-group special-field">
                 <label htmlFor="description">Descrição do Ocorrido*</label>
                 <textarea
                     id="description"
                     name="description"
                     rows="5"
                     value={formData.description || ''}
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     required
                 ></textarea>
             </div>
 
             <div className="step-actions">
                 <button type="button" className="cta-button secondary" onClick={prevStep}>Voltar</button>
-                <button type="button" className="cta-button" onClick={nextStep}>Próximo</button>
+                <button type="button" className="cta-button" onClick={handleNext}>Próximo</button>
             </div>
         </div>
     );
