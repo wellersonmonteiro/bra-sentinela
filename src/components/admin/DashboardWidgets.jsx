@@ -19,14 +19,14 @@ const ReportWidget = () => {
             end: formData.get('end_date'),
         };
 
-        console.log('📊 Gerando relatório:', reportParams);
+        console.log('Gerando relatório:', reportParams);
 
         setLoading(true);
         try {
             await downloadReport(reportParams);
-            console.log('✅ Relatório baixado com sucesso!');
+            console.log('Relatório baixado com sucesso!');
         } catch (error) {
-            console.error('❌ Erro ao baixar relatório:', error);
+            console.error('Erro ao baixar relatório:', error);
             setError(error?.message || 'Falha ao gerar o relatório.');
         } finally {
             setLoading(false);

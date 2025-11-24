@@ -52,10 +52,10 @@ const getComplaints = async (filters) => {
 const updateComplaintStatus = async (complaintId, analysisData) => {
     try {
         const response = await api.put(`/v1/analysis/${complaintId}`, analysisData);
-        if (response.status === 203) {
-            return { success: true, message: response.data.message };
+        if (response.status >= 200 && response.status < 300) {
+            return { success: true, message: response.data?.message };
         }
-        return { success: false };
+        return { success: false, message: response.data?.message };
     } catch (error) {
         console.error('Error updating status:', error);
         return { success: false, error: error.message };

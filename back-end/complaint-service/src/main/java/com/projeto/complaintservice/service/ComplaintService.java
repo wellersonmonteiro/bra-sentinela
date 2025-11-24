@@ -111,6 +111,13 @@ public class ComplaintService {
     public ComplaintUpdateResponse updateComplaint(String id, ComplaintUpdateRequest complaintRequest) {
         ComplaintEntity complaintEntity = complaintRepository.findByProtocolNumber(id);
         if (complaintEntity == null) {
+            try {
+                java.util.UUID uuid = java.util.UUID.fromString(id);
+                complaintEntity = complaintRepository.findById(uuid).orElse(null);
+            } catch (IllegalArgumentException e) {
+            }
+        }
+        if (complaintEntity == null) {
             throw new ComplaintException("Complaint not found", "NotFoundError");
         }
         complaintEntity.setStatusComplaint(complaintRequest.statusComplaint());

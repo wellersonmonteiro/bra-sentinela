@@ -19,4 +19,10 @@ public class AnalysisController {
         AnalysisResponse analysisResponse = analysisService.analyzeComplaints(analysisRequest);
         return ResponseEntity.ok(analysisResponse);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AnalysisResponse> updateComplaintAnalysis(@PathVariable String id, @RequestBody AnalysisRequest analysisRequest) {
+        AnalysisResponse analysisResponse = analysisService.updateComplaintAnalysis(id, analysisRequest);
+        return ResponseEntity.ok(analysisResponse);
+    }
 }
