@@ -30,11 +30,19 @@ public class ReportController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "relatorio-denuncias.pdf");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio-denuncias.pdf");
         headers.setContentLength(pdfBytes != null ? pdfBytes.length : 0);
 
         return ResponseEntity.ok()
-                .headers(headers)
-                .body(pdfBytes);
+            .headers(headers)
+            .body(pdfBytes);
+    }
+
+    @GetMapping("/complaints/csv/all")
+    public ResponseEntity<byte[]> proxyAllComplaintsCsv() {
+        ResponseEntity<byte[]> response = complaintServiceClient.exportAllComplaintsCsv();
+        return ResponseEntity.status(response.getStatusCode())
+                .headers(response.getHeaders())
+                .body(response.getBody());
     }
 }

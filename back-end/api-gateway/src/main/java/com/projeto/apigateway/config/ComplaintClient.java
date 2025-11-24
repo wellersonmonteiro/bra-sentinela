@@ -37,4 +37,7 @@ public interface ComplaintClient {
 
     @GetMapping(value = "/v1/report/last-months/pdf", produces = "application/pdf")
     byte[] getLastMonthsPdf(@RequestParam(name = "months", defaultValue = "6") int months);
+
+    @GetMapping("/v1/report/complaints/csv/all")
+    ResponseEntity<byte[]> exportAllComplaintsCsv();
 }

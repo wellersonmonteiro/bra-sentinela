@@ -56,4 +56,15 @@ public class ReportController {
                 .headers(headers)
                 .body(pdfBytes);
     }
+    @GetMapping("/complaints/csv/all")
+    public ResponseEntity<byte[]> exportAllComplaintsCsv() {
+        byte[] csvBytes = reportService.exportComplaintsCsv(null, null);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("text/csv"));
+        headers.setContentDispositionFormData("attachment", "complaints.csv");
+        headers.setContentLength(csvBytes.length);
+        return ResponseEntity.ok()
+            .headers(headers)
+            .body(csvBytes);
+    }
 }

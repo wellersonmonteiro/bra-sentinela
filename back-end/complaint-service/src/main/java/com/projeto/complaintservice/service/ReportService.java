@@ -73,4 +73,29 @@ public class ReportService {
 
         return result;
     }
+
+    public byte[] exportComplaintsCsv(String start, String end) {
+        List<com.projeto.complaintservice.entity.ComplaintEntity> all = complaintRepository.findAll();
+        StringBuilder sb = new StringBuilder();
+        sb.append("ID,Protocolo,Data,Hora,Canal,Status,Localização,Descrição,Descrição Detalhada,Cliente,Atacante,Valor,Mensagem,Mensagem Interna\n");
+        for (com.projeto.complaintservice.entity.ComplaintEntity c : all) {
+            String id = c.getId() != null ? c.getId().toString() : "";
+            String protocol = c.getProtocolNumber();
+            String date = c.getDate();
+            String time = c.getTime();
+            String channel = c.getChannel();
+            String status = c.getStatusComplaint();
+            String location = c.getLocationCity() != null ? (c.getLocationCity().getCity() + " - " + c.getLocationCity().getState()) : "";
+            String description = c.getDescription();
+            String descriptionDetalhada = c.getDescriptionComplaint();
+            String cliente = c.getCustomerId();
+            String atacante = c.getAttackerName();
+            String valor = c.getValue();
+            String mensagem = c.getMessage();
+            String mensagemInterna = c.getInternalMessage();
+            sb.append(String.format("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+                id, protocol, date, time, channel, status, location, description, descriptionDetalhada, cliente, atacante, valor, mensagem, mensagemInterna));
+        }
+        return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    }
 }
