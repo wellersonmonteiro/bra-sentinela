@@ -52,7 +52,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         if (!user.getEmail().equals(userDTO.getEmail()) &&
-            userRepository.existsByEmail(userDTO.getEmail())) {
+                userRepository.existsByEmail(userDTO.getEmail())) {
             throw new RuntimeException("Email já cadastrado");
         }
 

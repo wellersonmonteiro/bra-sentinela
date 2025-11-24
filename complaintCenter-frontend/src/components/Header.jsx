@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './Header.css';
 import logoImage from '../assets/logotipo.png';
 
@@ -13,8 +14,8 @@ function Header() {
                 />
             </a>
             <nav>
-                <a href="#home" className="link">Início</a>
-                <a href="#form" className="link">Acompanhe sua denúncia</a>
+                <a href="/" className="link">Início</a>
+                <Link to="/acompanhar" className="link">Acompanhe sua denúncia</Link>
             </nav>
         </header>
     );

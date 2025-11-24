@@ -1,25 +1,20 @@
 package com.projeto.apigateway.controller.dto;
 
-import com.projeto.apigateway.entity.LocationCity;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class ComplaintDetailResponse {
-    private String protocol;
-    private String status;
-    private String createdAt;
-    private String description;
-    private String channel;
-    private String attackerName;
-    private String value;
-    private LocationCity locationCity;
-    private List<String> files;
+public record ComplaintDetailResponse(
+        String protocol,
+        String status,
+        String description,
+        String createdAt,
+        String channel,
+        String attackerName,
+        Object locationCity, // Usei Object aqui também
+        List<String> files,
+        String value,
+        String date,
+        String time
+) {
 }
