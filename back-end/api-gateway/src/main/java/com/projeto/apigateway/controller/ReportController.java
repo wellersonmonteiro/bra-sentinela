@@ -24,7 +24,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.generatedCountReport());
     }
 
-    @GetMapping("/v1/report/last-months/pdf")
+    @GetMapping("/last-months/pdf")
     public ResponseEntity<byte[]> proxyLastMonthsPdf(@RequestParam(name = "months", defaultValue = "6") int months) {
         byte[] pdfBytes = complaintServiceClient.getLastMonthsPdf(months);
 
@@ -36,5 +36,13 @@ public class ReportController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(pdfBytes);
+    }
+
+    @GetMapping("/last-months")
+    public ResponseEntity<java.util.List<com.projeto.apigateway.controller.dto.MonthlyComplaintDetailedReportResponse>> proxyLastMonths(
+            @RequestParam(name = "months", defaultValue = "6") int months) {
+
+        var response = complaintServiceClient.getLastMonthsDetailed(months);
+        return ResponseEntity.ok(response);
     }
 }

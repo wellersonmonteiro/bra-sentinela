@@ -14,10 +14,8 @@ const FilaPage = () => {
 
     const loadComplaints = async () => {
         try {
-            // const complaintData = await complaintService.getComplaints({});
-            // setComplaints(Array.isArray(complaintData) ? complaintData : []);
-
-            if (complaints.length === 0) throw new Error("Forçando mock de dados");
+            const complaintData = await complaintService.getComplaints({});
+            setComplaints(Array.isArray(complaintData) ? complaintData : []);
 
         } catch (error) {
             console.warn("API falhou, usando mock de dados:", error.message);

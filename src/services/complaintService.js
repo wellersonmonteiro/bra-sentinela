@@ -30,6 +30,93 @@ export const getComplaintByProtocol = async (protocolId) => {
     }
 };
 
+export const getReport = async () => {
+    try {
+        const response = await api.get('/v1/report');
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar relatório:', error.response || error.message);
+        throw error;
+    }
+};
+
+export const getLastMonthsDetailed = async (months = 6) => {
+    try {
+        const response = await api.get('/v1/report/last-months', { params: { months } });
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar relatório detalhado:', error.response || error.message);
+        throw error;
+    }
+};
+
+export const downloadReportPdf = async (months = 6) => {
+    try {
+        const response = await api.get('/v1/report/last-months/pdf', {
+            params: { months },
+            responseType: 'blob'
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao baixar PDF do relatório:', error.response || error.message);
+        throw error;
+    }
+};
+
+/**
+ * Download a report based on form parameters.
+ * Currently supports `resumo_mensal` (monthly summary) which maps
+ * to the `/v1/report/last-months/pdf` endpoint. Other types will
+ * throw an error until backend endpoints are implemented.
+ */
+export const downloadReport = async ({ type, start, end } = {}) => {
+    // Only support two types for now: resumo_mensal (PDF) and export_csv (CSV)
+    if (type === 'resumo_mensal') {
+        // months derived from range if provided, otherwise default to 6
+        let months = 6;
+        try {
+            if (start && end) {
+                const s = new Date(start);
+                const e = new Date(end);
+                const diffMs = Math.abs(e - s);
+                months = Math.max(1, Math.ceil(diffMs / (30 * 24 * 60 * 60 * 1000)));
+            }
+        } catch (err) {
+            months = 6;
+        }
+
+        return downloadReportPdf(months);
+    }
+
+    if (type === 'export_csv') {
+        const params = {};
+        if (start) params.start = start;
+        if (end) params.end = end;
+
+        const complaints = await getComplaints(params);
+
+        const headers = ['id', 'createdAt', 'channel', 'status', 'location', 'description'];
+        const csvRows = [headers.join(',')];
+
+        complaints.forEach((c) => {
+            const row = [
+                `"${c.id ?? ''}"`,
+                `"${c.createdAt ?? ''}"`,
+                `"${(c.channel ?? '').toString().replace(/"/g, '""')}"`,
+                `"${c.status ?? ''}"`,
+                `"${c.location ?? ''}"`,
+                `"${(c.description ?? '').toString().replace(/"/g, '""')}"`
+            ];
+            csvRows.push(row.join(','));
+        });
+
+        const csv = csvRows.join('\n');
+        return new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    }
+
+    throw new Error('Tipo de relatório não suportado: ' + type);
+};
+
 
 const getComplaints = async (filters) => {
     const params = new URLSearchParams();
@@ -38,6 +125,8 @@ const getComplaints = async (filters) => {
     if (filters && filters.date) params.append('data', filters.date);
     if (filters && filters.location) params.append('local', filters.location);
     if (filters && filters.status) params.append('status', filters.status);
+    if (filters && filters.start) params.append('start', filters.start);
+    if (filters && filters.end) params.append('end', filters.end);
 
     try {
         const response = await api.get('/v1/complaint', { params });
@@ -64,4 +153,8 @@ const updateComplaintStatus = async (complaintId, analysisData) => {
 export const complaintService = {
     getComplaints,
     updateComplaintStatus,
+    getReport,
+    getLastMonthsDetailed,
+    downloadReportPdf,
+    downloadReport
 };

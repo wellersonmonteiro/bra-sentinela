@@ -18,16 +18,20 @@ const DashboardPage = () => {
 
     const loadDashboardData = async () => {
         try {
-            // (APIs estão comentadas, usando MOCK de dados)
-            // const reportData = await complaintService.getReport();
-            // setKpiData(reportData);
-            // const complaintData = await complaintService.getComplaints({ status: 'aberta' });
-            // setComplaints(Array.isArray(complaintData) ? complaintData : []);
+            const reportData = await complaintService.getReport();
+            // Ajuste se o formato vier com chaves diferentes
+            setKpiData({
+                abertas: reportData.open ?? reportData.abertas ?? 0,
+                emAnalise: reportData.pendingReview ?? reportData.emAnalise ?? 0,
+                validadas: reportData.validated ?? reportData.validadas ?? 0,
+                inconsistentes: reportData.inconsistent ?? reportData.inconsistentes ?? 0,
+            });
 
-            if (!kpiData) throw new Error("Forçando mock de dados");
+            const complaintData = await complaintService.getComplaints({ status: 'aberta' });
+            setComplaints(Array.isArray(complaintData) ? complaintData : []);
 
         } catch (error) {
-            console.warn("API falhou, usando mock de dados:", error.message);
+            console.warn("API falhou, usando mock de dados:", error?.message || error);
             setKpiData({
                 abertas: 12,
                 emAnalise: 5,
