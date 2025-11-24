@@ -19,7 +19,6 @@ const DashboardPage = () => {
     const loadDashboardData = async () => {
         try {
             const reportData = await getReport();
-            // Ajuste se o formato vier com chaves diferentes
             setKpiData({
                 abertas: reportData.open ?? reportData.abertas ?? 0,
                 emAnalise: reportData.pendingReview ?? reportData.emAnalise ?? 0,

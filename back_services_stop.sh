@@ -1,30 +1,26 @@
 #!/usr/bin/env bash
 
+#!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$HOME/Documents/bra-sentinela/back-end"
-LOG_DIR="$ROOT_DIR/logs"
+PORTS=(3000 3001 3002 3003 3004 3005 3006 8090)
 
-stop_service() {
-  local name="$1"
-  local pid_file="$LOG_DIR/$name.pid"
-  if [[ -f "$pid_file" ]]; then
-    PID=$(cat "$pid_file" || true)
-    if [[ -n "${PID:-}" ]]; then
-      echo "[STOP] $name (PID $PID)"
-      kill "$PID" || true
-      rm -f "$pid_file"
-    fi
+kill_port() {
+  local port="$1"
+  PID=$(lsof -t -i:$port || true)
+  if [[ -n "${PID:-}" ]]; then
+    echo "[KILL] Porta $port → PID $PID"
+    kill -9 "$PID" || true
   else
-    echo "[STOP] $name pid file not found"
+    echo "[OK] Porta $port livre"
   fi
 }
 
-# Stop Spring Boot apps
-stop_service "admin-service"
-stop_service "api-gateway"
-stop_service "auth-service"
-stop_service "complaint-service"
-stop_service "user-service"
+echo "Encerrando serviços ocupando portas Spring Boot..."
 
-echo "All services stopped."
+for port in "${PORTS[@]}"; do
+  kill_port "$port"
+done
+
+echo "✔ Todas as portas liberadas."
+

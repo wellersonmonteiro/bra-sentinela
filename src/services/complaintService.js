@@ -30,10 +30,6 @@ export const getComplaintByProtocol = async (protocolId) => {
     }
 };
 
-// Report-related helper functions were moved to `src/services/reportService.js`.
-// This file now only exposes complaint-related operations (CRUD and listing).
-
-
 const getComplaints = async (filters) => {
     const params = new URLSearchParams();
 

@@ -19,10 +19,6 @@ import java.util.List;
 @Service
 public class PdfReportService {
 
-    // NOTE: This service generates PDFs fully in-memory and returns a byte[].
-    // For very large reports consider streaming the PDF (write directly to the
-    // response OutputStream) to avoid high memory usage on the server.
-
     private static final Logger log = LoggerFactory.getLogger(PdfReportService.class);
 
     private final ReportService reportService;
@@ -36,13 +32,10 @@ public class PdfReportService {
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdf = new PdfDocument(writer);
             Document document = new Document(pdf);
-            // Build and add a simple header section (title, period, generated-at)
             buildHeader(document, months);
 
-            // Fetch data from the report service (which queries complaint-service via Feign)
             List<MonthlyComplaintDetailedReportResponse> data = reportService.getLastMonthsDetailed(months);
 
-            // Build table with fixed column widths and add rows
             Table table = buildTable(data);
             document.add(table);
             document.close();
@@ -56,10 +49,6 @@ public class PdfReportService {
         }
     }
 
-    /**
-     * Adds a simple header to the provided iText Document.
-     * Keeps header generation isolated to make future layout changes easier.
-     */
     private void buildHeader(Document document, int months) {
         document.add(new Paragraph("Relatório Detalhado de Denúncias")
                 .setFontSize(18)
@@ -77,10 +66,6 @@ public class PdfReportService {
                 .setMarginBottom(20));
     }
 
-    /**
-     * Build the table for the monthly report and populate rows from the provided data.
-     * The table creation is isolated so column definitions and headers are easy to update.
-     */
     private Table buildTable(List<MonthlyComplaintDetailedReportResponse> data) {
         float[] columnWidths = {2, 1, 1, 1, 1, 1, 1, 1, 1};
         Table table = new Table(columnWidths);

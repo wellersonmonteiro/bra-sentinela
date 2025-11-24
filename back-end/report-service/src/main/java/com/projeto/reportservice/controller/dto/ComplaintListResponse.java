@@ -2,6 +2,7 @@ package com.projeto.reportservice.controller.dto;
 
 import lombok.*;
 import java.util.UUID;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -13,4 +14,7 @@ public class ComplaintListResponse {
     private String date;
     private String channel;
     private String status;
+    private String location;    
+    private String description;
+    private LocalDate createdAt;
 }

@@ -7,15 +7,14 @@ import './RelatoriosPage.css';
 import DashboardWidgets from '../../components/admin/DashboardWidgets';
 import ChannelChartWidget from '../../components/admin/ChannelChartWidget';
 import DashboardKpiGrid from '../../components/admin/DashboardKpiGrid';
-import { getReport, getLastMonthsDetailed, downloadAndSaveReport } from '../../services/reportService';
+import { getReport, getLastMonthsDetailed } from '../../services/reportService';
 
 const RelatoriosPage = () => {
     const [kpiData, setKpiData] = useState(null);
     const [detailed, setDetailed] = useState([]);
     const [months, setMonths] = useState(6);
     const [loadingDetailed, setLoadingDetailed] = useState(false);
-    const [loadingPdf, setLoadingPdf] = useState(false);
-    const [loadingCsv, setLoadingCsv] = useState(false);
+  
 
     useEffect(() => {
         const load = async () => {
@@ -56,76 +55,6 @@ const RelatoriosPage = () => {
         loadDetailed(m);
     };
 
-    // kept focused: monthly PDF and CSV export only
-
-    const ChannelSummary = ({ complaints }) => {
-        const map = {};
-        (complaints || []).forEach(c => {
-            const ch = c.channel || 'Desconhecido';
-            map[ch] = (map[ch] || 0) + 1;
-        });
-        return (
-            <div style={{ marginBottom: '1rem' }}>
-                <strong>Por Canal:</strong>
-                <ul>
-                    {Object.entries(map).map(([k, v]) => (
-                        <li key={k}>{k}: {v}</li>
-                    ))}
-                </ul>
-            </div>
-        );
-    };
-
-    const StatusSummary = ({ complaints }) => {
-        const map = {};
-        (complaints || []).forEach(c => {
-            const st = c.status || 'Desconhecido';
-            map[st] = (map[st] || 0) + 1;
-        });
-        return (
-            <div style={{ marginBottom: '1rem' }}>
-                <strong>Por Status:</strong>
-                <ul>
-                    {Object.entries(map).map(([k, v]) => (
-                        <li key={k}>{k}: {v}</li>
-                    ))}
-                </ul>
-            </div>
-        );
-    };
-
-    const handleDownloadMonthlyPdf = async () => {
-        setLoadingPdf(true);
-        try {
-            await downloadAndSaveReport({ type: 'resumo_mensal', start: null, end: null }, `relatorio_resumo_${months}m`);
-        } catch (err) {
-            console.error('Erro ao baixar PDF:', err);
-            alert('Erro ao baixar relatório PDF.');
-        } finally {
-            setLoadingPdf(false);
-        }
-    };
-
-    const handleExportCsv = async () => {
-        setLoadingCsv(true);
-        try {
-            // compute date range for months
-            const end = new Date();
-            const start = new Date();
-            start.setMonth(start.getMonth() - months + 1);
-            const startIso = start.toISOString().slice(0, 10);
-            const endIso = end.toISOString().slice(0, 10);
-
-            await downloadAndSaveReport({ type: 'export_csv', start: startIso, end: endIso }, `denuncias_${startIso}_to_${endIso}`);
-        } catch (err) {
-            console.error('Erro ao exportar CSV:', err);
-            alert('Erro ao exportar CSV.');
-        } finally {
-            setLoadingCsv(false);
-        }
-    };
-
-    // Download handling moved to `reportService`.
 
     return (
         <>

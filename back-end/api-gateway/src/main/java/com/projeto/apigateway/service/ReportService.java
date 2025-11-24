@@ -1,15 +1,18 @@
 package com.projeto.apigateway.service;
 
-import com.projeto.apigateway.config.ComplaintClient;
+import com.projeto.apigateway.config.ReportClient;
 import com.projeto.apigateway.controller.dto.ComplaintReportQuantitiesResponse;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-@AllArgsConstructor
+ 
 @Service
 public class ReportService {
-    private final ComplaintClient complaintClient;
+    private final ReportClient reportClient;
+
+    public ReportService(ReportClient reportClient) {
+        this.reportClient = reportClient;
+    }
+
     public ComplaintReportQuantitiesResponse generatedCountReport() {
-        return complaintClient.getComplaintReportQuantities();
+        return reportClient.getReportQuantities();
     }
 }

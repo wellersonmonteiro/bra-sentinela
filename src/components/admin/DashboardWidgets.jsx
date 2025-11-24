@@ -1,13 +1,17 @@
-import React from 'react';
 import './DashboardWidgets.css';
-import { buildReportFilename, downloadAndSaveReport } from '../../services/reportService';
+import React, { useState } from 'react';
+import { downloadReport } from '../../services/reportService';
+
 
 
 const ReportWidget = () => {
-    const [loading, setLoading] = React.useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     const handleDownload = async (e) => {
         e.preventDefault();
+        setError(null);
+
         const formData = new FormData(e.target);
         const reportParams = {
             type: formData.get('report_type'),
@@ -15,19 +19,20 @@ const ReportWidget = () => {
             end: formData.get('end_date'),
         };
 
+        console.log('📊 Gerando relatório:', reportParams);
+
         setLoading(true);
         try {
-            const filenameBase = buildReportFilename(reportParams);
-            await downloadAndSaveReport(reportParams, filenameBase);
+            await downloadReport(reportParams);
+            console.log('✅ Relatório baixado com sucesso!');
         } catch (error) {
-            console.error('Erro ao baixar relatório:', error);
-            alert(error?.message || 'Falha ao gerar o relatório.');
+            console.error('❌ Erro ao baixar relatório:', error);
+            setError(error?.message || 'Falha ao gerar o relatório.');
         } finally {
             setLoading(false);
         }
     };
 
-    // Download handling moved to `reportService` to keep component clean.
 
     return (
         <div className="widget-card">

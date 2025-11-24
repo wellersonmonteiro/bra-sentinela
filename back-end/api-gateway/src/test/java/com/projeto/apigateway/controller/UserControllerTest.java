@@ -22,8 +22,8 @@ class UserControllerTest {
 
     @Test
     void createUser_returnsResponse() {
-        var req = new UserCreateRequest("name","email");
-        var resp = new UserCreateResponse(1, "name", "email");
+        var req = new UserCreateRequest("name", "email", "99999999999", "12345678900");
+        var resp = new UserCreateResponse("1");
         when(userService.createUser(req)).thenReturn(resp);
 
         var result = controller.getUserById(req);
