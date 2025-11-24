@@ -13,20 +13,4 @@ public class ComplaintListResponse {
     private String date;
     private String channel;
     private String status;
-
-    public String getStatus() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public Object getChannel() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public Object getDate() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public Object getId() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 }

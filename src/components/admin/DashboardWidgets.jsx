@@ -1,6 +1,6 @@
 import React from 'react';
 import './DashboardWidgets.css';
-import { complaintService } from '../../services/complaintService';
+import { buildReportFilename, downloadAndSaveReport } from '../../services/reportService';
 
 
 const ReportWidget = () => {
@@ -17,9 +17,8 @@ const ReportWidget = () => {
 
         setLoading(true);
         try {
-            const blob = await complaintService.downloadReport(reportParams);
-            // validate blob before download
-            await safeDownloadBlob(blob, `relatorio_${reportParams.type}_${reportParams.start || 'inicio'}_${reportParams.end || 'fim'}`);
+            const filenameBase = buildReportFilename(reportParams);
+            await downloadAndSaveReport(reportParams, filenameBase);
         } catch (error) {
             console.error('Erro ao baixar relatório:', error);
             alert(error?.message || 'Falha ao gerar o relatório.');
@@ -28,40 +27,7 @@ const ReportWidget = () => {
         }
     };
 
-    async function safeDownloadBlob(blobOrData, baseName) {
-        // blobOrData may be a Blob or something else; ensure we have a Blob
-        const blob = blobOrData instanceof Blob ? blobOrData : new Blob([blobOrData]);
-
-        // if the server returned JSON or HTML (error), try to parse and show message
-        const type = (blob.type || '').toLowerCase();
-        const isJson = type.includes('application/json');
-        const isHtml = type.includes('text/html');
-        const isCsv = type.includes('text/csv');
-
-        if (isJson || isHtml) {
-            const text = await blob.text();
-            try {
-                const obj = JSON.parse(text);
-                const msg = obj.message || obj.error || JSON.stringify(obj);
-                throw new Error(msg);
-            } catch (e) {
-                throw new Error(text);
-            }
-        }
-
-        // determine extension from MIME (allow csv explicitly)
-        const ext = isCsv ? 'csv' : (type.includes('pdf') ? 'pdf' : 'bin');
-        const filename = `${baseName}.${ext}`;
-
-        const url = window.URL.createObjectURL(blob.type ? blob : new Blob([blob], { type: 'application/octet-stream' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
-        window.URL.revokeObjectURL(url);
-    }
+    // Download handling moved to `reportService` to keep component clean.
 
     return (
         <div className="widget-card">

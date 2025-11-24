@@ -15,7 +15,9 @@ public interface ComplaintRepository extends JpaRepository<ComplaintEntity, UUID
     ComplaintEntity findByProtocolNumber(String protocolNumber);
 
     Long countByStatusComplaint(String open);
-
+    
+    //Query para relatório detalhado de contagem de reclamações por mês desde uma data específica
+    // Usado para gerar relatórios mensais de reclamações
     @Query(value = """
 SELECT
     year_month,

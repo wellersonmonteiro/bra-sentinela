@@ -7,8 +7,8 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.projeto.reportservice.controller.dto.MonthlyComplaintDetailedReportResponse;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -17,60 +17,33 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
-@Slf4j
 public class PdfReportService {
 
+    // NOTE: This service generates PDFs fully in-memory and returns a byte[].
+    // For very large reports consider streaming the PDF (write directly to the
+    // response OutputStream) to avoid high memory usage on the server.
+
+    private static final Logger log = LoggerFactory.getLogger(PdfReportService.class);
+
     private final ReportService reportService;
+
+    public PdfReportService(ReportService reportService) {
+        this.reportService = reportService;
+    }
 
     public byte[] generateMonthlyReportPdf(int months) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdf = new PdfDocument(writer);
             Document document = new Document(pdf);
+            // Build and add a simple header section (title, period, generated-at)
+            buildHeader(document, months);
 
-            document.add(new Paragraph("Relatório Detalhado de Denúncias")
-                    .setFontSize(18)
-                    .setBold()
-                    .setTextAlignment(TextAlignment.CENTER));
-
-            document.add(new Paragraph("Período: Últimos " + months + " meses")
-                    .setFontSize(12)
-                    .setTextAlignment(TextAlignment.CENTER));
-
-            document.add(new Paragraph("Gerado em: " +
-                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
-                    .setFontSize(10)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(20));
-
+            // Fetch data from the report service (which queries complaint-service via Feign)
             List<MonthlyComplaintDetailedReportResponse> data = reportService.getLastMonthsDetailed(months);
 
-            float[] columnWidths = {2, 1, 1, 1, 1, 1, 1, 1, 1};
-            Table table = new Table(columnWidths);
-
-            table.addHeaderCell("Mês");
-            table.addHeaderCell("Total");
-            table.addHeaderCell("Pendente");
-            table.addHeaderCell("Aberta");
-            table.addHeaderCell("Em Análise");
-            table.addHeaderCell("Validada");
-            table.addHeaderCell("Inconsistente");
-            table.addHeaderCell("Média/Dia");
-            table.addHeaderCell("Variação %");
-
-            for (MonthlyComplaintDetailedReportResponse row : data) {
-                table.addCell(row.monthName() + "/" + row.year());
-                table.addCell(String.valueOf(row.total()));
-                table.addCell(String.valueOf(row.pending()));
-                table.addCell(String.valueOf(row.open()));
-                table.addCell(String.valueOf(row.inProgress()));
-                table.addCell(String.valueOf(row.validated()));
-                table.addCell(String.valueOf(row.inconsistent()));
-                table.addCell(String.format("%.2f", row.averagePerDay()));
-                table.addCell(String.format("%.2f%%", row.percentageChange()));
-            }
-
+            // Build table with fixed column widths and add rows
+            Table table = buildTable(data);
             document.add(table);
             document.close();
 
@@ -81,5 +54,59 @@ public class PdfReportService {
             log.error("Error generating PDF: {}", e.getMessage());
             throw new RuntimeException("Erro ao gerar PDF", e);
         }
+    }
+
+    /**
+     * Adds a simple header to the provided iText Document.
+     * Keeps header generation isolated to make future layout changes easier.
+     */
+    private void buildHeader(Document document, int months) {
+        document.add(new Paragraph("Relatório Detalhado de Denúncias")
+                .setFontSize(18)
+                .setBold()
+                .setTextAlignment(TextAlignment.CENTER));
+
+        document.add(new Paragraph("Período: Últimos " + months + " meses")
+                .setFontSize(12)
+                .setTextAlignment(TextAlignment.CENTER));
+
+        document.add(new Paragraph("Gerado em: " +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
+                .setFontSize(10)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMarginBottom(20));
+    }
+
+    /**
+     * Build the table for the monthly report and populate rows from the provided data.
+     * The table creation is isolated so column definitions and headers are easy to update.
+     */
+    private Table buildTable(List<MonthlyComplaintDetailedReportResponse> data) {
+        float[] columnWidths = {2, 1, 1, 1, 1, 1, 1, 1, 1};
+        Table table = new Table(columnWidths);
+
+        table.addHeaderCell("Mês");
+        table.addHeaderCell("Total");
+        table.addHeaderCell("Pendente");
+        table.addHeaderCell("Aberta");
+        table.addHeaderCell("Em Análise");
+        table.addHeaderCell("Validada");
+        table.addHeaderCell("Inconsistente");
+        table.addHeaderCell("Média/Dia");
+        table.addHeaderCell("Variação %");
+
+        for (MonthlyComplaintDetailedReportResponse row : data) {
+            table.addCell(row.monthName() + "/" + row.year());
+            table.addCell(String.valueOf(row.total()));
+            table.addCell(String.valueOf(row.pending()));
+            table.addCell(String.valueOf(row.open()));
+            table.addCell(String.valueOf(row.inProgress()));
+            table.addCell(String.valueOf(row.validated()));
+            table.addCell(String.valueOf(row.inconsistent()));
+            table.addCell(String.format("%.2f", row.averagePerDay()));
+            table.addCell(String.format("%.2f%%", row.percentageChange()));
+        }
+
+        return table;
     }
 }
