@@ -36,6 +36,20 @@ const AnalysisModal = ({ complaint, onClose }) => {
         }
     };
 
+    const renderFiles = () => {
+        const files = complaint?.files || [];
+        if (!files || files.length === 0) return <p>Sem arquivos anexados.</p>;
+        return (
+            <ul className="files-list">
+                {files.map((f, idx) => (
+                    <li key={idx}>
+                        <a href={f} target="_blank" rel="noreferrer">Arquivo {idx + 1}</a>
+                    </li>
+                ))}
+            </ul>
+        );
+    };
+
     if (!complaint) return null;
 
     return (
@@ -59,6 +73,14 @@ const AnalysisModal = ({ complaint, onClose }) => {
                             <li><span>Analista B</span> mudou status para <span>Em Análise</span> (15/11/2025)</li>
                             <li>Denúncia criada (14/11/2025)</li>
                         </ul>
+                    </div>
+
+                    <div className="complaint-details">
+                        <h4>Descrição da Denúncia</h4>
+                        <p>{complaint.description || complaint.descriptionComplaint || 'Descrição não disponível.'}</p>
+
+                        <h4>Arquivos</h4>
+                        {renderFiles()}
                     </div>
 
                     <div className="form-group">

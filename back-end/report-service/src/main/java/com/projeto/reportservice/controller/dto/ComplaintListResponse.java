@@ -16,5 +16,5 @@ public class ComplaintListResponse {
     private String status;
     private String location;    
     private String description;
-    private LocalDate createdAt;
+    private String createdAt;
 }

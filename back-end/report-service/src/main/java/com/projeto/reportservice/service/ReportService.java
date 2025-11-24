@@ -61,8 +61,8 @@ public class ReportService {
         }
 
         java.util.Map<java.time.YearMonth, java.util.List<ComplaintListResponse>> grouped = all.stream()
-                .filter(c -> tryParseDate(c.getDate()) != null)
-                .collect(java.util.stream.Collectors.groupingBy(c -> java.time.YearMonth.from(tryParseDate(c.getDate()))));
+            .filter(c -> tryParseDate(getBestDateString(c)) != null)
+            .collect(java.util.stream.Collectors.groupingBy(c -> java.time.YearMonth.from(tryParseDate(getBestDateString(c)))));
 
         java.util.List<MonthlyComplaintDetailedReportResponse> result = new java.util.ArrayList<>();
         Long previousTotal = null;
@@ -124,7 +124,7 @@ public class ReportService {
             // Filtra por data
             List<ComplaintListResponse> filtered = all.stream()
                     .filter(c -> {
-                        LocalDate d = tryParseDate(c.getDate());
+                        LocalDate d = tryParseDate(getBestDateString(c));
                         if (d == null) {
                             log.debug("Skipping complaint with invalid date: id={} protocol={}", 
                                      c.getId(), c.getProtocol());
@@ -172,7 +172,8 @@ public class ReportService {
     private String csvRow(ComplaintListResponse c) {
         String id = safeString(c.getId() != null ? c.getId().toString() : "");
         String protocol = safeString(c.getProtocol());
-        String date = safeString(c.getDate());
+        LocalDate parsed = tryParseDate(getBestDateString(c));
+        String date = parsed != null ? parsed.toString() : safeString(getBestDateString(c));
         String channel = safeString(c.getChannel());
         String status = safeString(c.getStatus());
         String location = safeString(c.getLocation()); // <-- Correto agora
@@ -211,6 +212,12 @@ public class ReportService {
                 return null;
             }
         }
+    }
+
+    private String getBestDateString(ComplaintListResponse c) {
+        if (c == null) return null;
+        if (c.getCreatedAt() != null && !c.getCreatedAt().isBlank()) return c.getCreatedAt();
+        return c.getDate();
     }
 
     private LocalDate parseDateOrDefault(String dateStr, LocalDate fallback) {

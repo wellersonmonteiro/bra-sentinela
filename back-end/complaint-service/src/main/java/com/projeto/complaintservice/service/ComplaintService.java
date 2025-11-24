@@ -139,15 +139,23 @@ public class ComplaintService {
     private List<ComplaintListResponse> findAllMapping() {
         List<ComplaintEntity> complaintEntitys = complaintRepository.findAll();
 
-        return complaintEntitys.stream().map(complaintEntity ->
-                ComplaintListResponse.builder()
+        return complaintEntitys.stream().map(complaintEntity -> {
+                String location = null;
+                if (complaintEntity.getLocationCity() != null) {
+                    location = complaintEntity.getLocationCity().getCity() + " - " + complaintEntity.getLocationCity().getState();
+                }
+                return ComplaintListResponse.builder()
                         .protocol(complaintEntity.getProtocolNumber())
                         .status(complaintEntity.getStatusComplaint())
                         .date(complaintEntity.getCreatedDate())
                         .id(complaintEntity.getId())
                         .channel(complaintEntity.getChannel())
-                        .build()
-        ).toList();
+                        .location(location)
+                        .description(complaintEntity.getDescriptionComplaint())
+                        .createdAt(complaintEntity.getCreatedDate())
+                        .files(complaintEntity.getFiles())
+                        .build();
+        }).toList();
     }
 
     private ComplaintResponse getCompaint(String id) {

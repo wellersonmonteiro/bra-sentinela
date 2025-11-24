@@ -39,9 +39,9 @@ const ComplaintList = ({ complaints, onAnalyzeClick }) => {
                     {complaints && complaints.length > 0 ? (
                         complaints.map((complaint) => (
                             <tr key={complaint.id}>
-                                <td data-label="Protocolo">{complaint.id}</td>
+                                <td data-label="Protocolo">{complaint.protocol || complaint.id}</td>
                                 <td data-label="Data">
-                                    {new Date(complaint.createdAt).toLocaleDateString('pt-BR')}
+                                    {new Date(complaint.createdAt || complaint.date).toLocaleDateString('pt-BR')}
                                 </td>
                                 <td data-label="Canal">{complaint.channel}</td>
                                 <td data-label="Status">
