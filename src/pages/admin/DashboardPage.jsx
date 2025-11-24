@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { complaintService } from '../../services/complaintService';
+import { getReport } from '../../services/reportService';
 
 import './DashboardPage.css';
 
@@ -18,7 +18,7 @@ const DashboardPage = () => {
 
     const loadDashboardData = async () => {
         try {
-            const reportData = await complaintService.getReport();
+            const reportData = await getReport();
             // Ajuste se o formato vier com chaves diferentes
             setKpiData({
                 abertas: reportData.open ?? reportData.abertas ?? 0,
@@ -27,7 +27,7 @@ const DashboardPage = () => {
                 inconsistentes: reportData.inconsistent ?? reportData.inconsistentes ?? 0,
             });
 
-            const complaintData = await complaintService.getComplaints({ status: 'aberta' });
+            const complaintData = await (await import('../../services/complaintService')).complaintService.getComplaints({ status: 'aberta' });
             setComplaints(Array.isArray(complaintData) ? complaintData : []);
 
         } catch (error) {

@@ -7,7 +7,7 @@ import './RelatoriosPage.css';
 import DashboardWidgets from '../../components/admin/DashboardWidgets';
 import ChannelChartWidget from '../../components/admin/ChannelChartWidget';
 import DashboardKpiGrid from '../../components/admin/DashboardKpiGrid';
-import { complaintService } from '../../services/complaintService';
+import { getReport, getLastMonthsDetailed, downloadAndSaveReport } from '../../services/reportService';
 
 const RelatoriosPage = () => {
     const [kpiData, setKpiData] = useState(null);
@@ -20,7 +20,7 @@ const RelatoriosPage = () => {
     useEffect(() => {
         const load = async () => {
             try {
-                const report = await complaintService.getReport();
+                const report = await getReport();
                 setKpiData({
                     abertas: report.open ?? report.abertas ?? 0,
                     emAnalise: report.pendingReview ?? report.emAnalise ?? 0,
@@ -40,7 +40,7 @@ const RelatoriosPage = () => {
     const loadDetailed = async (m = 6) => {
         setLoadingDetailed(true);
         try {
-            const resp = await complaintService.getLastMonthsDetailed(m);
+            const resp = await getLastMonthsDetailed(m);
             setDetailed(Array.isArray(resp) ? resp : []);
         } catch (err) {
             console.warn('Falha ao carregar relatório detalhado', err?.message || err);
@@ -97,8 +97,7 @@ const RelatoriosPage = () => {
     const handleDownloadMonthlyPdf = async () => {
         setLoadingPdf(true);
         try {
-            const blob = await complaintService.downloadReport({ type: 'resumo_mensal', start: null, end: null });
-            await safeDownloadBlob(blob, `relatorio_resumo_${months}m`, 'pdf');
+            await downloadAndSaveReport({ type: 'resumo_mensal', start: null, end: null }, `relatorio_resumo_${months}m`);
         } catch (err) {
             console.error('Erro ao baixar PDF:', err);
             alert('Erro ao baixar relatório PDF.');
@@ -117,8 +116,7 @@ const RelatoriosPage = () => {
             const startIso = start.toISOString().slice(0, 10);
             const endIso = end.toISOString().slice(0, 10);
 
-            const blob = await complaintService.downloadReport({ type: 'export_csv', start: startIso, end: endIso });
-            await safeDownloadBlob(blob, `denuncias_${startIso}_to_${endIso}`, 'csv');
+            await downloadAndSaveReport({ type: 'export_csv', start: startIso, end: endIso }, `denuncias_${startIso}_to_${endIso}`);
         } catch (err) {
             console.error('Erro ao exportar CSV:', err);
             alert('Erro ao exportar CSV.');
@@ -127,35 +125,7 @@ const RelatoriosPage = () => {
         }
     };
 
-    async function safeDownloadBlob(blobOrData, baseName, forcedExt) {
-        const blob = blobOrData instanceof Blob ? blobOrData : new Blob([blobOrData]);
-        const type = (blob.type || '').toLowerCase();
-        const isJson = type.includes('application/json');
-        const isHtml = type.includes('text/html');
-        const isCsv = type.includes('text/csv');
-
-        if (isJson || isHtml) {
-            const text = await blob.text();
-            try {
-                const obj = JSON.parse(text);
-                throw new Error(obj.message || obj.error || JSON.stringify(obj));
-            } catch (e) {
-                throw new Error(text);
-            }
-        }
-
-        const ext = forcedExt || (isCsv ? 'csv' : (type.includes('pdf') ? 'pdf' : 'bin'));
-        const filename = `${baseName}.${ext}`;
-
-        const url = window.URL.createObjectURL(blob.type ? blob : new Blob([blob], { type: 'application/octet-stream' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
-        window.URL.revokeObjectURL(url);
-    }
+    // Download handling moved to `reportService`.
 
     return (
         <>
