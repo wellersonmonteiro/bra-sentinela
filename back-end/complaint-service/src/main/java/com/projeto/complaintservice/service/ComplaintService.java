@@ -71,7 +71,7 @@ public class ComplaintService {
                     .attackerName(complaintRequest.getAttackerName())
                     .value(complaintRequest.getValue())
                     .locationCity(locationCity)
-                    .statusComplaint("Aberta")
+                    .statusComplaint("ABERTA")
                     .createdDate(LocalDateTime.now().toString())
                     .protocolNumber(protocolNumber)
                     .files(complaintRequest.getFiles())
