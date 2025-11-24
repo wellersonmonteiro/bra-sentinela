@@ -41,7 +41,7 @@ public class ComplaintEntity {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "complaint_files",
             joinColumns = @JoinColumn(name = "complaint_id"))
-    @Column(name = "file_path")
+    @Column(name = "file_path", columnDefinition = "TEXT")
     private List<String> files = new ArrayList<>();
 
     @Column(name = "customer_id")

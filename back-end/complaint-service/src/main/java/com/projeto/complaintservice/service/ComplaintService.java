@@ -1,6 +1,5 @@
 package com.projeto.complaintservice.service;
 
-
 import com.projeto.complaintservice.config.ComplaintProducer;
 import com.projeto.complaintservice.controller.dto.*;
 import com.projeto.complaintservice.entity.ComplaintEntity;
@@ -37,23 +36,19 @@ public class ComplaintService {
 
     public ComplaintResponse getComplaintById(String id) {
         try {
-
             return getCompaint(id);
         } catch (ComplaintException complaintException) {
             log.error("Error fetching complaint: {}", complaintException.getMessage());
             throw complaintException;
         }
-
     }
 
     private ComplaintCreateResponse saveComplaint(ComplaintCreateRequest complaintRequest) {
         try {
             String protocolNumber = getString();
 
-
             LocationCity locationCity = null;
             if (complaintRequest.getLocationCity() != null) {
-
                 if (complaintRequest.getLocationCity().getId() != null && complaintRequest.getLocationCity().getId() > 0) {
                     locationCity = locationCityRepository.findById(complaintRequest.getLocationCity().getId())
                             .orElse(null);
@@ -67,11 +62,10 @@ public class ComplaintService {
                 }
             }
 
-
             ComplaintEntity complaintEntity = ComplaintEntity.builder()
                     .customerId(complaintRequest.getCustomerId())
                     .descriptionComplaint(complaintRequest.getDescription())
-                    .description(complaintRequest.getDate())
+                    .description(complaintRequest.getDescription())
                     .message("Sua solicitação está aguardando análise!")
                     .channel(complaintRequest.getChannel())
                     .attackerName(complaintRequest.getAttackerName())
@@ -81,8 +75,9 @@ public class ComplaintService {
                     .createdDate(LocalDateTime.now().toString())
                     .protocolNumber(protocolNumber)
                     .files(complaintRequest.getFiles())
+                    .date(complaintRequest.getDate())
+                    .time(complaintRequest.getTime())
                     .build();
-
 
             ComplaintEntity savedEntity = complaintRepository.save(complaintEntity);
 
@@ -155,6 +150,13 @@ public class ComplaintService {
                 .descriptionComplaint(complaintEntity.getDescriptionComplaint())
                 .protocolNumber(complaintEntity.getProtocolNumber())
                 .message(complaintEntity.getMessage())
+                .channel(complaintEntity.getChannel())
+                .attackerName(complaintEntity.getAttackerName())
+                .value(complaintEntity.getValue())
+                .files(complaintEntity.getFiles())
+                .date(complaintEntity.getDate())
+                .time(complaintEntity.getTime())
+                .locationCity(complaintEntity.getLocationCity())
                 .build();
     }
 
@@ -173,12 +175,11 @@ public class ComplaintService {
                     .locationCity(complaintEntity.getLocationCity())
                     .files(complaintEntity.getFiles())
                     .value(complaintEntity.getValue())
+                    .date(complaintEntity.getDate())
+                    .time(complaintEntity.getTime())
                     .build();
         } else {
             throw new ComplaintException("Complaint not found for customer ID: " + id, "NotFoundError");
         }
-
     }
 }
-
-
