@@ -24,7 +24,6 @@ function StepIdentification({ nextStep, skipToStep }) {
                     className="cta-button secondary"
                     onClick={() => {
                         setFormData(prev => ({ ...prev, isAnonymous: true }));
-                        // "Anonimamente" -> PULE para a Etapa 3
                         skipToStep(3);
                     }}
                 >

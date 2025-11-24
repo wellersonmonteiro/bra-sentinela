@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { getComplaintByProtocol } from '../services/complaintService';
 import './TrackComplaintPage.css';
 
-
 const formatDate = (isoString) => {
     if (!isoString) return 'Data indisponível';
-
     try {
         const date = new Date(isoString);
         return date.toLocaleString('pt-BR', {
@@ -18,6 +16,20 @@ const formatDate = (isoString) => {
     } catch (e) {
         return isoString;
     }
+};
+
+const formatStatus = (status) => {
+    const map = {
+        'OPEN': 'Aberta',
+        'ABERTA': 'Aberta',
+        'IN_ANALYSIS': 'Em Análise',
+        'EM_ANALISE': 'Em Análise',
+        'VALIDATED': 'Validada',
+        'VALIDADA': 'Validada',
+        'INCONSISTENT': 'Inconsistente',
+        'INCONSISTENTE': 'Inconsistente'
+    };
+    return map[status] || status;
 };
 
 function TrackComplaintPage() {
@@ -38,7 +50,6 @@ function TrackComplaintPage() {
             const data = await getComplaintByProtocol(protocolInput);
             setComplaintData(data);
         } catch (err) {
-
             if (err.response && err.response.status === 404) {
                 setError('Protocolo não encontrado. Verifique o número e tente novamente.');
             } else {
@@ -48,20 +59,6 @@ function TrackComplaintPage() {
         } finally {
             setLoading(false);
         }
-    };
-
-    const formatStatus = (status) => {
-        const map = {
-            'OPEN': 'Aberta',
-            'ABERTA': 'Aberta',
-            'IN_ANALYSIS': 'Em Análise',
-            'EM_ANALISE': 'Em Análise',
-            'VALIDATED': 'Validada',
-            'VALIDADA': 'Validada',
-            'INCONSISTENT': 'Inconsistente',
-            'INCONSISTENTE': 'Inconsistente'
-        };
-        return map[status] || status;
     };
 
     return (
@@ -104,7 +101,6 @@ function TrackComplaintPage() {
 
                     <div className="result-item">
                         <strong>Status:</strong>
-
                         <span className={`status-badge ${complaintData.statusComplaint?.toLowerCase()}`}>
                             {formatStatus(complaintData.statusComplaint)}
                         </span>
@@ -120,13 +116,14 @@ function TrackComplaintPage() {
                         <p>{complaintData.descriptionComplaint}</p>
                     </div>
 
-
-                    {complaintData.message && (
-                        <div className="result-item">
-                            <strong>Mensagem do Atendente:</strong>
-                            <p className="message-box">{complaintData.message}</p>
-                        </div>
-                    )}
+                    <div className="result-item">
+                        <strong>Mensagem do Atendente:</strong>
+                        <p className="message-box">
+                            {complaintData.message
+                                ? complaintData.message
+                                : "Sua solicitação está aguardando análise."}
+                        </p>
+                    </div>
                 </div>
             )}
         </div>

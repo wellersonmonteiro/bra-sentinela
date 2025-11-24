@@ -1,40 +1,61 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
-import { complaintService } from '../../services/complaintService';
-
-import './DashboardPage.css';
+import React, { useState, useEffect } from 'react';
+import { getComplaints } from '../../services/complaintService';
+import './FilaPage.css';
 
 import ComplaintList from '../../components/admin/ComplaintList';
 import AnalysisModal from '../../components/admin/AnalysisModal';
 
 const FilaPage = () => {
-    const [complaints, setComplaints] = useState([]);
+    const [pendingComplaints, setPendingComplaints] = useState([]);
+    const [finishedComplaints, setFinishedComplaints] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [selectedComplaint, setSelectedComplaint] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const loadComplaints = async () => {
+        setLoading(true);
         try {
-            // const complaintData = await complaintService.getComplaints({});
-            // setComplaints(Array.isArray(complaintData) ? complaintData : []);
+            const apiData = await getComplaints();
 
-            if (complaints.length === 0) throw new Error("Forçando mock de dados");
+            const formattedData = Array.isArray(apiData) ? apiData.map(item => ({
+                id: item.id || item.complaintId,
+                displayProtocol: item.protocolNumber || item.protocol || "S/N",
+                createdAt: item.createdDate || item.date,
+                channel: item.channel,
+                status: (item.status || item.statusComplaint || 'ABERTA').toUpperCase()
+            })) : [];
+
+            const pending = formattedData.filter(item =>
+                item.status !== 'VALIDADA' && item.status !== 'INCONSISTENTE'
+            );
+
+            const finished = formattedData.filter(item =>
+                item.status === 'VALIDADA' || item.status === 'INCONSISTENTE'
+            );
+
+            setPendingComplaints(pending);
+            setFinishedComplaints(finished);
 
         } catch (error) {
-            console.warn("API falhou, usando mock de dados:", error.message);
-            setComplaints([
-                { id: '#83B-451', createdAt: '2025-11-15T10:00:00Z', channel: 'WhatsApp', status: 'aberta' },
-                { id: '#83B-450', createdAt: '2025-11-15T09:00:00Z', channel: 'Ligação (Voz)', status: 'em_analise' },
-                { id: '#83B-449', createdAt: '2025-11-14T14:00:00Z', channel: 'SMS', status: 'aberta' },
-                { id: '#83B-448', createdAt: '2025-11-14T12:00:00Z', channel: 'WhatsApp', status: 'aberta' },
-                { id: '#83B-447', createdAt: '2025-11-13T11:00:00Z', channel: 'E-mail', status: 'validada' },
-                { id: '#83B-446', createdAt: '2025-11-13T10:00:00Z', channel: 'WhatsApp', status: 'inconsistente' },
-            ]);
+            console.error(error);
+        } finally {
+            setLoading(false);
         }
     };
 
     useEffect(() => {
         loadComplaints();
     }, []);
+
+    const filteredPending = pendingComplaints.filter(item => {
+        if (!searchTerm) return true;
+        const term = searchTerm.toLowerCase();
+        return (
+            item.displayProtocol.toLowerCase().includes(term) ||
+            item.channel.toLowerCase().includes(term)
+        );
+    });
 
     const handleAnalyzeClick = (complaint) => {
         setSelectedComplaint(complaint);
@@ -49,16 +70,51 @@ const FilaPage = () => {
         }
     };
 
-    return (
-        <>
-            <h1 className="main-title">Fila de Denúncias</h1>
+    if (loading) return <div className="loading-screen">Carregando Fila...</div>;
 
-            <div className="main-column">
+    return (
+        <div className="fila-page-container">
+            <h1 className="fila-main-title">Gerenciamento de Denúncias</h1>
+
+            <section className="fila-section">
+                <div className="fila-section-header">
+                    <h2 className="fila-section-title">
+                        Fila de Análise
+                        <span className="count-badge">{filteredPending.length}</span>
+                    </h2>
+
+                    <input
+                        type="text"
+                        placeholder="Filtrar por protocolo ou canal..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
+                </div>
+
                 <ComplaintList
-                    complaints={complaints}
+                    complaints={filteredPending}
                     onAnalyzeClick={handleAnalyzeClick}
+                    title={null}
+                    showFooter={false}
                 />
-            </div>
+            </section>
+
+            <section className="fila-section">
+                <div className="fila-section-header">
+                    <h2 className="fila-section-title">
+                        Histórico de Finalizadas
+                        <span className="count-badge">{finishedComplaints.length}</span>
+                    </h2>
+                </div>
+
+                <ComplaintList
+                    complaints={finishedComplaints}
+                    onAnalyzeClick={handleAnalyzeClick}
+                    title={null}
+                    showFooter={false}
+                />
+            </section>
 
             {isModalOpen && (
                 <AnalysisModal
@@ -66,7 +122,7 @@ const FilaPage = () => {
                     onClose={handleCloseModal}
                 />
             )}
-        </>
+        </div>
     );
 };
 
