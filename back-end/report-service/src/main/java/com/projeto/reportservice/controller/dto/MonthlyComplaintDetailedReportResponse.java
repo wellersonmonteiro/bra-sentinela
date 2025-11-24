@@ -1,4 +1,4 @@
-package com.projeto.complaintservice.controller.dto;
+package com.projeto.reportservice.controller.dto;
 
 public record MonthlyComplaintDetailedReportResponse(
     String yearMonth,

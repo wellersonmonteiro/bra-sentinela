@@ -32,14 +32,4 @@ public interface ComplaintClient {
     @GetMapping("/v1/complaint/customer/{id}/details")
     ComplaintDetailResponse getComplaintDetailsByCustomerId(@PathVariable UUID id);
 
-    @GetMapping("v1/report")
-    ComplaintReportQuantitiesResponse getComplaintReportQuantities();
-
-    @GetMapping(value = "/v1/report/last-months/pdf", produces = "application/pdf")
-    byte[] getLastMonthsPdf(@RequestParam(name = "months", defaultValue = "6") int months);
-
-    @GetMapping("/v1/report/last-months")
-    java.util.List<com.projeto.apigateway.controller.dto.MonthlyComplaintDetailedReportResponse> getLastMonthsDetailed(
-            @RequestParam(name = "months", defaultValue = "6") int months
-    );
 }

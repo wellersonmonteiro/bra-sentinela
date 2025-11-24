@@ -46,5 +46,8 @@ ORDER BY year, month
 """, nativeQuery = true)
     List<Object[]> countComplaintsSinceDetailed(@Param("startDate") String startDate);
 
+    @Query(value = "SELECT * FROM complaints WHERE CAST(created_date AS date) BETWEEN CAST(:start AS date) AND CAST(:end AS date) ORDER BY created_date", nativeQuery = true)
+    List<com.projeto.complaintservice.entity.ComplaintEntity> findByCreatedDateBetween(@org.springframework.data.repository.query.Param("start") String start, @org.springframework.data.repository.query.Param("end") String end);
+
 
 }

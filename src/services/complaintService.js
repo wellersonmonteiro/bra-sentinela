@@ -89,29 +89,37 @@ export const downloadReport = async ({ type, start, end } = {}) => {
     }
 
     if (type === 'export_csv') {
+        // Prefer backend CSV generation. Call gateway endpoint which proxies to complaint-service.
         const params = {};
         if (start) params.start = start;
         if (end) params.end = end;
 
-        const complaints = await getComplaints(params);
+        try {
+            const response = await api.get('/v1/report/complaints/csv', { params, responseType: 'blob' });
+            return response.data;
+        } catch (err) {
+            console.warn('Backend CSV generation failed, falling back to client CSV', err?.message || err);
+            // fallback to client-side CSV generation if backend fails
+            const complaints = await getComplaints(params);
 
-        const headers = ['id', 'createdAt', 'channel', 'status', 'location', 'description'];
-        const csvRows = [headers.join(',')];
+            const headers = ['id', 'createdAt', 'channel', 'status', 'location', 'description'];
+            const csvRows = [headers.join(',')];
 
-        complaints.forEach((c) => {
-            const row = [
-                `"${c.id ?? ''}"`,
-                `"${c.createdAt ?? ''}"`,
-                `"${(c.channel ?? '').toString().replace(/"/g, '""')}"`,
-                `"${c.status ?? ''}"`,
-                `"${c.location ?? ''}"`,
-                `"${(c.description ?? '').toString().replace(/"/g, '""')}"`
-            ];
-            csvRows.push(row.join(','));
-        });
+            complaints.forEach((c) => {
+                const row = [
+                    `"${c.id ?? ''}"`,
+                    `"${c.createdAt ?? ''}"`,
+                    `"${(c.channel ?? '').toString().replace(/"/g, '""')}"`,
+                    `"${c.status ?? ''}"`,
+                    `"${c.location ?? ''}"`,
+                    `"${(c.description ?? '').toString().replace(/"/g, '""')}"`
+                ];
+                csvRows.push(row.join(','));
+            });
 
-        const csv = csvRows.join('\n');
-        return new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const csv = csvRows.join('\n');
+            return new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        }
     }
 
     throw new Error('Tipo de relatório não suportado: ' + type);
