@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @FeignClient(
     name = "complaint-service",
-    url = "http://localhost:3002"
+    url = "http://complaint-service:3002"
 )
 public interface ComplaintClient {
     

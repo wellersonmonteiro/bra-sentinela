@@ -6,7 +6,7 @@ spring:
   application:
     name: complaint-service
   rabbitmq:
-    host: localhost
+    host: rabbitmq
     port: 5672
     username: admin
     password: admin123
@@ -14,7 +14,7 @@ spring:
   # Database Configuration
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/microservices_db
+    url: jdbc:postgresql://postgres:5432/microservices_db
     username: admin
     password: admin123
     hikari:
