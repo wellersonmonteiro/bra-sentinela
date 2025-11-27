@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
@@ -172,6 +173,41 @@ services:
       - microservices-network
     depends_on:
       - elasticsearch
+
+  auth-service:
+    build: ./back-end/auth-service
+    container_name: auth-service
+    depends_on:
+      - postgres
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "3001:8080"
+    networks:
+      - microservices-network
+
+  complaint-service:
+    build: ./back-end/complaint-service
+    container_name: complaint-service
+    depends_on:
+      - postgres
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "3002:8080"
+    networks:
+      - microservices-network
+
+  api-gateway:
+    build: ./back-end/api-gateway
+    container_name: api-gateway
+    depends_on:
+      - auth-service
+      - complaint-service
+    ports:
+      - "8090:8080"
+    networks:
+      - microservices-network
 
 networks:
   microservices-network:
