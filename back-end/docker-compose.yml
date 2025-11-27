@@ -175,7 +175,7 @@ services:
       - elasticsearch
 
   auth-service:
-    build: ./back-end/auth-service
+    build: ./auth-service
     container_name: auth-service
     depends_on:
       - postgres
@@ -187,7 +187,7 @@ services:
       - microservices-network
 
   complaint-service:
-    build: ./back-end/complaint-service
+    build: ./complaint-service
     container_name: complaint-service
     depends_on:
       - postgres
@@ -199,7 +199,7 @@ services:
       - microservices-network
 
   api-gateway:
-    build: ./back-end/api-gateway
+    build: ./api-gateway
     container_name: api-gateway
     depends_on:
       - auth-service
